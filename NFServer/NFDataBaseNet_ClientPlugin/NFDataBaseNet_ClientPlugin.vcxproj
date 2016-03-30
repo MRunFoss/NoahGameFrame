@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
@@ -12,14 +12,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="NFCDataBaseNet_ClientModule.cpp" />
-    <ClCompile Include="NFCObjectSaveModule.cpp" />
+    <ClCompile Include="NFCDataProcessModule.cpp" />
     <ClCompile Include="NFDataBaseNet_ClientPlugin.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\NFComm\NFPluginModule\NFIObjectSaveModule.h" />
-    <ClInclude Include="NFCDataBaseNet_ClientModule.h" />
-    <ClInclude Include="NFCObjectSaveModule.h" />
+    <ClInclude Include="NFCDataProcessModule.h" />
     <ClInclude Include="NFDataBaseNet_ClientPlugin.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -32,14 +30,14 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -67,8 +65,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN;_DEBUG;_USRDLL;_WINDOWS;NFDBNET_CLIENTPLUGIN_EXPORTS;ELPP_NO_DEFAULT_LOG_FILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\Dependencies\;$(SolutionDir)\Dependencies\boost_1_53_0\;$(SolutionDir)\Dependencies\libevent-2.0.21-stable\;$(SolutionDir)\Dependencies\libevent-2.0.21-stable\WIN32-Code\;$(SolutionDir)\Dependencies\libevent-2.0.21-stable\include\;$(SolutionDir)\Dependencies\libevent-2.0.21-stable\compat\;$(SolutionDir)\Dependencies\protobuf-2.5.0\src\;$(SolutionDir)\Dependencies\Theron-6.00.01\Include\;$(SolutionDir)\Dependencies\mysql\</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN;_DEBUG;_WINDOWS;NFDBNET_CLIENTPLUGIN_EXPORTS;ELPP_NO_DEFAULT_LOG_FILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\Dependencies\;$(SolutionDir)\Dependencies\libevent\;$(SolutionDir)\Dependencies\libevent\WIN32-Code\;$(SolutionDir)\Dependencies\libevent\include\;$(SolutionDir)\Dependencies\libevent\compat\;$(SolutionDir)\Dependencies\protobuf\src\;$(SolutionDir)\Dependencies\Theron\Include\;$(SolutionDir)\Dependencies\mysql\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -98,8 +96,8 @@ copy /y $(SolutionDir)\_Out\Comm\$(Configuration)\$(ProjectName)_d.dll $(Solutio
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN;NDEBUG;_USRDLL;_WINDOWS;NFDBNET_CLIENTPLUGIN_EXPORTS;ELPP_NO_DEFAULT_LOG_FILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\Dependencies\;$(SolutionDir)\Dependencies\boost_1_53_0\;$(SolutionDir)\Dependencies\libevent-2.0.21-stable\;$(SolutionDir)\Dependencies\libevent-2.0.21-stable\WIN32-Code\;$(SolutionDir)\Dependencies\libevent-2.0.21-stable\include\;$(SolutionDir)\Dependencies\libevent-2.0.21-stable\compat\;$(SolutionDir)\Dependencies\protobuf-2.5.0\src\;$(SolutionDir)\Dependencies\Theron-6.00.01\Include\;$(SolutionDir)\Dependencies\mysql\</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN;NDEBUG;_WINDOWS;NFDBNET_CLIENTPLUGIN_EXPORTS;ELPP_NO_DEFAULT_LOG_FILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\Dependencies\;$(SolutionDir)\Dependencies\libevent\;$(SolutionDir)\Dependencies\libevent\WIN32-Code\;$(SolutionDir)\Dependencies\libevent\include\;$(SolutionDir)\Dependencies\libevent\compat\;$(SolutionDir)\Dependencies\protobuf\src\;$(SolutionDir)\Dependencies\Theron\Include\;$(SolutionDir)\Dependencies\mysql\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -109,7 +107,15 @@ copy /y $(SolutionDir)\_Out\Comm\$(Configuration)\$(ProjectName)_d.dll $(Solutio
       <AdditionalLibraryDirectories>$(SolutionDir)\_Out\Comm\$(Configuration)\;$(SolutionDir)\Dependencies\lib\$(Configuration)\;$(SolutionDir)\Dependencies\boost_1_53_0\stage\lib\x64\vs11_0\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y $(SolutionDir)\_Out\Comm\$(Configuration)\$(ProjectName).dll $(SolutionDir)\_Out\Server\$(Configuration)\NFGameServer1\$(ProjectName).dll
+      <Command>copy /y $(SolutionDir)\_Out\Comm\$(Configuration)\$(ProjectName).dll $(SolutionDir)\_Out\Server\$(Configuration)\NFLoginServer\$(ProjectName).dll
+copy /y $(SolutionDir)\_Out\Comm\$(Configuration)\$(ProjectName).pdb $(SolutionDir)\_Out\Server\$(Configuration)\NFLoginServer\$(ProjectName).pdb
+copy /y $(SolutionDir)\_Out\Comm\$(Configuration)\$(ProjectName).dll $(SolutionDir)\_Out\Server\$(Configuration)\NFWorldServer\$(ProjectName).dll
+copy /y $(SolutionDir)\_Out\Comm\$(Configuration)\$(ProjectName).pdb $(SolutionDir)\_Out\Server\$(Configuration)\NFWorldServer\$(ProjectName).pdb
+copy /y $(SolutionDir)\_Out\Comm\$(Configuration)\$(ProjectName).dll $(SolutionDir)\_Out\Server\$(Configuration)\NFMasterServer\$(ProjectName).dll
+copy /y $(SolutionDir)\_Out\Comm\$(Configuration)\$(ProjectName).pdb $(SolutionDir)\_Out\Server\$(Configuration)\NFMasterServer\$(ProjectName).pdb
+copy /y $(SolutionDir)\_Out\Comm\$(Configuration)\$(ProjectName).dll $(SolutionDir)\_Out\Server\$(Configuration)\NFProxyServer1\$(ProjectName).dll
+copy /y $(SolutionDir)\_Out\Comm\$(Configuration)\$(ProjectName).pdb $(SolutionDir)\_Out\Server\$(Configuration)\NFProxyServer1\$(ProjectName).pdb
+copy /y $(SolutionDir)\_Out\Comm\$(Configuration)\$(ProjectName).dll $(SolutionDir)\_Out\Server\$(Configuration)\NFGameServer1\$(ProjectName).dll
 copy /y $(SolutionDir)\_Out\Comm\$(Configuration)\$(ProjectName).pdb $(SolutionDir)\_Out\Server\$(Configuration)\NFGameServer1\$(ProjectName).pdb
 </Command>
     </PostBuildEvent>

@@ -1,6 +1,5 @@
 #include "HelloWorld1.h"
 
-
 bool HelloWorld1::Init()
 {
     //初始化
@@ -17,7 +16,7 @@ bool HelloWorld1::AfterInit()
     return true;
 }
 
-bool HelloWorld1::Execute( const float fLasFrametime, const float fStartedTime )
+bool HelloWorld1::Execute()
 {
     //每帧执行
     //std::cout << "Hello, world1, Execute" << std::endl;

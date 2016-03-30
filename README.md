@@ -1,53 +1,50 @@
-NoahGameFrame
-=============
-######Copyright © http://www.yowoyo.com
+# NoahGameFrame
+##### Copyright © http://www.noahframe.com
+
+[![Join the chat at https://gitter.im/ketoo/NoahGameFrame](https://badges.gitter.im/ketoo/NoahGameFrame.svg)](https://gitter.im/ketoo/NoahGameFrame?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 #####交流QQ群：341159815
 
-##What is it?
+## What is it?
 
-NF is a lightweight, fast, scalable, distributed plugin framework.
+NF is a lightweight, fast, scalable, distributed plugin framework.Greatly inspired by OGRE and Bigworld.
 
-The features:
--------------------
-
-*  it is easy to use interface oriented design minimise the effort
-*  extensible plugin framework makes getting your application running is quick and simple
-*  clean, uncluttered design, stable engine used in several commercial products
-*  using the actor model has very high performance(by theron);</p>
-*  based on the event-driven and attribute-driver can make business more clearly and easy to maintenance
-*  based on the standard c + + development, cross-platform support
-*  with existing c++, c# game client for rapid development
-*  Cross-platform
-
-
-Manual
----------------
-https://github.com/ketoo/NoahGameFrame/blob/develop/Introduce/NFrame_Introduction_CHS.pdf
+## Features
+- Easy to use interface oriented design minimise the effort
+- Extensible plugin framework makes getting your application running is quick and simple
+- Clean, uncluttered design, stable engine used in several commercial products
+- Using the actor model has very high performance(by Theron)
+- Based on the event-driven and attribute-driver can make business more clearly and easy to maintenance
+- Based on the standard c + + development, cross-platform support
+- With existing c++, c# game client for rapid development
+- Cross-platform
 
 
 
-Architecture:
--------------------
+### FAQ
+[FAQ](http://blog.noahframe.com/?p=229)
 
-Architecture:
+### Unity3D client
+[U3D Client](https://github.com/ketoo/NoahGameFrame/tree/master/_Out/Server/ClientBin/source)
 
-![Architecture](https://github.com/ketoo/NoahGameFrame/blob/develop/Introduce/20150511205235.jpg)
-![Architecture](https://github.com/ketoo/NoahGameFrame/blob/develop/Introduce/20150511205320.jpg)
+## Introduction
+[English PDF](https://github.com/ketoo/NoahGameFrame/blob/develop/Introduce/NFrame_Introduction_EN_US.pdf) / [English PPT](https://github.com/ketoo/NoahGameFrame/blob/develop/Introduce/NFrame_Introduction_EN_US.ppt)
 
-Event Driver:
-
-![Event Driver](https://github.com/ketoo/NoahGameFrame/blob/develop/Introduce/20150511205210.jpg)
-
-Logic Class:
-
-![Logic Class](https://github.com/ketoo/NoahGameFrame/blob/develop/Introduce/20150511205321.png)
+[中文简体 PDF](https://github.com/ketoo/NoahGameFrame/blob/develop/Introduce/NFrame_Introduction_ZH_CN.pdf) / [中文简体 PPT](https://github.com/ketoo/NoahGameFrame/blob/develop/Introduce/NFrame_Introduction_ZH_CN.ppt)
 
 
+## Architecture
 
+### App Architecture:
+![App Architecture](https://github.com/ketoo/NoahGameFrame/blob/develop/Introduce/img/NF_app_arch.png)
 
-Get the Sources:
--------------------
+### Server Architecture
+![Server Architecture](https://github.com/ketoo/NoahGameFrame/blob/develop/Introduce/img/NF_server_arch.png)
+
+### Event Driver:
+![Event Driver](https://github.com/ketoo/NoahGameFrame/blob/develop/Introduce/img/NF_Event_driver.png)
+
+## Get the Sources:
 
 git clone https://github.com/ketoo/NoahGameFrame.git
 
@@ -56,64 +53,57 @@ or
 svn checkout https://github.com/ketoo/NoahGameFrame
 
 
-Dependencies:
--------------------
+## Dependencies
 
-Need build sub librares:
+- libevent 2.0.22
+- easylogging++ 9.80
+- mysql++ 3.2.2
+- google protobuf 2.5.0
+- pybind11 1.2
+- redis-cpp-client 
+- Theron 6.00.01
+- curl 7.37.1
 
-* Boost.System
-* Boost.Chrono
-* Boost.Thread
+## Supported Compilers
 
-* libevent-2.0.21-stable
-* protobuf-2.5.0
-* redis-cplusplus-client
-* Theron-6.00.01
-* easylogging++
+* GCC >= 4.8 (**Tested in Ubuntu 15.04**)
+* MSVC >= VS2013 (**Tested in Win7/10**)
 
-Supported Compilers
--------------------
+## Build and Install
+### Windows[MSVC >= 2013]
 
-* GCC >= 4.8
-* VC >= 9.0 (sp1)
+1. Git pull all source
+2. Run **install.bat**
+3. Open the solution: **NoahFrame.sln**
+4. Build the solution
+5. Run **_Out/Server/NFDataCfg/Tool/FileProcess.exe** to generate configuration files
+6. Run the binary file by **_Out/Server/Debug/Run.bat**
 
+### Linux[CodeBlocks >= 13.1]
 
-How to build:
--------------------
-
-## Windows[VS2012]
-
-* 1:download all source;
-
-* 2:extract nessasery lib: 	Dependencies\boost_1_53_0.zip to Dependencies\
-
-* 3:extract nessasery lib: 	Dependencies\lib.zip to Dependencies\
-
-* 4:open the solution:		trunk\NoahFrame.sln
-
-* 5:build the solution 
-
-* 6: run the binary file by trunk\_Out\Server\Debug\Run.bat
+1. Git pull all source
+2. Run **install.sh**
+3. Open the solution with CodeBlocks: **NF.workspace**
+4. Check **C++11** option in CodeBlocks compiler setting
+5. Build **NF.workspace**
+6. Run the binary file by **_Out/Server/Debug/rund.sh**
 
 
-## Linux[CodeBlock 13.1]
+### JAVA Project
+WebSite:  https://github.com/NFGameTeam/NFrame-java
 
-* 1:download all source;
+### C# Project
+WebSite:  https://github.com/ketoo/NFrame
 
-* 2:extract nessasery lib: 	Dependencies\boost_1_53_0.zip to Dependencies\
 
-* 3:extract nessasery lib: 	Dependencies\lib.zip to Dependencies\
 
-* 4:open the solution by code::block:		trunk\NF.workspace
+## Documents & Tutorial
+[English](https://github.com/ketoo/NoahGameFrame/blob/develop/doc_EN_US.md)
 
-* 5:add c++11 optional for every project of this solution
+[中文简体](https://github.com/ketoo/NoahGameFrame/blob/develop/doc_ZH_CN.md)
 
-* 6:build library: NFNet, NFCore, NFEventTriggerPlugin, NFKernelPlugin, Theron, libprotocolbuf[libprotocolbuf-lite], NFLogPlugin, NFPluginLoader
-
-* 7:build all other plugin
-
-* 8: run the binary file by trunk\_Out\Server\Debug\Run.sh
-
+## License
+The NFrame project is currently available under the [Apache License](https://github.com/ketoo/NoahGameFrame/blob/develop/LICENSE).
 
 
 Tutorial:

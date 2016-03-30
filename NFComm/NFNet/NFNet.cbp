@@ -19,10 +19,9 @@
 					<Add option="-D_DEBUG" />
 					<Add directory="$(SolutionDir)" />
 					<Add directory="$(SolutionDir)/Dependencies/" />
-					<Add directory="$(SolutionDir)/Dependencies/boost_1_53_0/" />
-					<Add directory="$(SolutionDir)/Dependencies/libevent-2.0.21-stable/" />
-					<Add directory="$(SolutionDir)/Dependencies/libevent-2.0.21-stable/include/" />
-					<Add directory="$(SolutionDir)/Dependencies/libevent-2.0.21-stable/compat/" />
+					<Add directory="$(SolutionDir)/Dependencies/libevent/" />
+					<Add directory="$(SolutionDir)/Dependencies/libevent/include/" />
+					<Add directory="$(SolutionDir)/Dependencies/libevent/compat/" />
 				</Compiler>
 				<Environment>
 					<Variable name="SolutionDir" value="../../" />
@@ -40,10 +39,9 @@
 					<Add option="-DNDEBUG" />
 					<Add directory="$(SolutionDir)" />
 					<Add directory="$(SolutionDir)/Dependencies/" />
-					<Add directory="$(SolutionDir)/Dependencies/boost_1_53_0/" />
-					<Add directory="$(SolutionDir)/Dependencies/libevent-2.0.21-stable/" />
-					<Add directory="$(SolutionDir)/Dependencies/libevent-2.0.21-stable/include/" />
-					<Add directory="$(SolutionDir)/Dependencies/libevent-2.0.21-stable/compat/" />
+					<Add directory="$(SolutionDir)/Dependencies/libevent/" />
+					<Add directory="$(SolutionDir)/Dependencies/libevent/include/" />
+					<Add directory="$(SolutionDir)/Dependencies/libevent/compat/" />
 				</Compiler>
 				<Environment>
 					<Variable name="SolutionDir" value="../../" />
@@ -52,10 +50,7 @@
 		</Build>
 		<Unit filename="NFCNet.cpp" />
 		<Unit filename="NFCNet.h" />
-		<Unit filename="NFCPacket.cpp" />
-		<Unit filename="NFCPacket.h" />
 		<Unit filename="NFINet.h" />
-		<Unit filename="NFIPacket.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

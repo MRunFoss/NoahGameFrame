@@ -12,11 +12,10 @@
 #include "NFCElementInfoModule.h"
 #include "NFCLogicClassModule.h"
 
-////
-
+bool NFCLogicClassModule::bCipher = false;
 bool NFCLogicClassModule::Init()
 {
-    m_pElementInfoModule = dynamic_cast<NFIElementInfoModule*>(pPluginManager->FindModule("NFCElementInfoModule"));
+    m_pElementInfoModule = pPluginManager->FindModule<NFIElementInfoModule>("NFCElementInfoModule");
 
     assert(NULL != m_pElementInfoModule);
 
@@ -37,7 +36,19 @@ NFCLogicClassModule::NFCLogicClassModule(NFIPluginManager* p)
     mnPropertyIndex = NF_GetTickCount() % 10 + 1;
 
     pPluginManager = p;
-    msConfigFileName = "../../NFDataCfg/Struct/LogicClass.xml";
+
+    // 判断 *.xml 是否存在，如果不存在，用 *.NF
+    msConfigFileName = "NFDataCfg/Struct/LogicClass.xml";
+    bCipher = false;
+    std::fstream file;
+    file.open(pPluginManager->GetConfigPath() + msConfigFileName, std::ios::in);
+    if (!file)
+    {
+        msConfigFileName = "NFDataCfg/Struct/LogicClass.NF";
+        bCipher = true;
+    }
+
+    std::cout << "Using [" << pPluginManager->GetConfigPath() + msConfigFileName << "]" << std::endl;
 }
 
 NFCLogicClassModule::~NFCLogicClassModule()
@@ -49,33 +60,23 @@ TDATA_TYPE NFCLogicClassModule::ComputerType(const char* pstrTypeName, NFIDataLi
 {
     if (0 == strcmp(pstrTypeName, "int"))
     {
-        var.nType = TDATA_INT;
-        var.variantData = (NFINT64)0;
-        return TDATA_INT;
-    }
-    else if (0 == strcmp(pstrTypeName, "float"))
-    {
-        var.nType = TDATA_FLOAT;
-        var.variantData = (float)0.0f;
-        return TDATA_FLOAT;
+        var.SetInt(NULL_INT);
+        return var.GetType();
     }
     else if (0 == strcmp(pstrTypeName, "string"))
     {
-        var.nType = TDATA_STRING;
-        var.variantData = NULL_STR;
-        return TDATA_STRING;
+        var.SetString(NULL_STR);
+        return var.GetType();
     }
-    else if (0 == strcmp(pstrTypeName, "double"))
+    else if (0 == strcmp(pstrTypeName, "float"))
     {
-        var.nType = TDATA_DOUBLE;
-        var.variantData = (double)0.0f;
-        return TDATA_DOUBLE;
+        var.SetFloat(NULL_FLOAT);
+        return var.GetType();
     }
     else if (0 == strcmp(pstrTypeName, "object"))
     {
-        var.nType = TDATA_OBJECT;
-        var.variantData = NFIDENTID();
-        return TDATA_OBJECT;
+        var.SetObject(NULL_OBJECT);
+        return var.GetType();
     }
 
     return TDATA_UNKNOWN;
@@ -101,7 +102,7 @@ bool NFCLogicClassModule::AddPropertys(rapidxml::xml_node<>* pPropertyRootNode, 
             const char* pstrPropertyIndex = pPropertyNode->first_attribute("Index")->value();
 
             const char* pstrSave = pPropertyNode->first_attribute("Save")->value();
-            
+
             std::string strView;
             if (pPropertyNode->first_attribute("View") != NULL)
             {
@@ -114,11 +115,11 @@ bool NFCLogicClassModule::AddPropertys(rapidxml::xml_node<>* pPropertyRootNode, 
                 pstrRelationValue = pPropertyNode->first_attribute("RelationValue")->value();
             }
 
-            bool bPublic = boost::lexical_cast<bool>(pstrPublic);
-            bool bPrivate = boost::lexical_cast<bool>(pstrPrivate);
-            bool bSave = boost::lexical_cast<bool>(pstrSave);
-            bool bView = (strView.empty() ? false : (boost::lexical_cast<bool>(strView)));
-            int nIndex = boost::lexical_cast<int>(pstrPropertyIndex);
+            bool bPublic = lexical_cast<bool>(pstrPublic);
+            bool bPrivate = lexical_cast<bool>(pstrPrivate);
+            bool bSave = lexical_cast<bool>(pstrSave);
+            bool bView = (strView.empty() ? false : (lexical_cast<bool>(strView)));
+            int nIndex = lexical_cast<int>(pstrPropertyIndex);
 
             if (bPublic || bPrivate)
             {
@@ -138,7 +139,7 @@ bool NFCLogicClassModule::AddPropertys(rapidxml::xml_node<>* pPropertyRootNode, 
 
             //printf( " Property:%s[%s]\n", pstrPropertyName, pstrType );
 
-            pClass->GetPropertyManager()->AddProperty(NFIDENTID(), strPropertyName, varProperty.nType, bPublic,  bPrivate, bSave, bView, nIndex, pstrRelationValue);
+            pClass->GetPropertyManager()->AddProperty(NFGUID(), strPropertyName, varProperty.GetType(), bPublic,  bPrivate, bSave, bView, nIndex, pstrRelationValue);
         }
     }
 
@@ -168,7 +169,7 @@ bool NFCLogicClassModule::AddRecords(rapidxml::xml_node<>* pRecordRootNode, NF_S
             const char* pstrPublic = pRecordNode->first_attribute("Public")->value();
             const char* pstrPrivate = pRecordNode->first_attribute("Private")->value();
             const char* pstrSave = pRecordNode->first_attribute("Save")->value();
-            
+
             std::string strView;
             if (pRecordNode->first_attribute("View") != NULL)
             {
@@ -177,11 +178,11 @@ bool NFCLogicClassModule::AddRecords(rapidxml::xml_node<>* pRecordRootNode, NF_S
 
             const char* pstrIndex = pRecordNode->first_attribute("Index")->value();
 
-            bool bPublic = boost::lexical_cast<bool>(pstrPublic);
-            bool bPrivate = boost::lexical_cast<bool>(pstrPrivate);
-            bool bSave = boost::lexical_cast<bool>(pstrSave);
-            bool bView = (strView.empty() ? false : (boost::lexical_cast<bool>(strView)));
-            int nIndex = boost::lexical_cast<int>(pstrIndex);
+            bool bPublic = lexical_cast<bool>(pstrPublic);
+            bool bPrivate = lexical_cast<bool>(pstrPrivate);
+            bool bSave = lexical_cast<bool>(pstrSave);
+            bool bView = (strView.empty() ? false : (lexical_cast<bool>(strView)));
+            int nIndex = lexical_cast<int>(pstrIndex);
 
             NFCDataList recordVar;
             NFCDataList recordKey;
@@ -204,7 +205,7 @@ bool NFCLogicClassModule::AddRecords(rapidxml::xml_node<>* pRecordRootNode, NF_S
                 if (recordColNode->first_attribute("Key") != NULL)
                 {
                     const char* pstrKey = recordColNode->first_attribute("Key")->value();
-                    bool bKey = boost::lexical_cast<bool>(pstrKey);
+                    bool bKey = lexical_cast<bool>(pstrKey);
                     if (bKey)
                     {
                         recordKey.Add(NFINT64(1));
@@ -249,7 +250,7 @@ bool NFCLogicClassModule::AddRecords(rapidxml::xml_node<>* pRecordRootNode, NF_S
                 //////////////////////////////////////////////////////////////////////////
             }
 
-            pClass->GetRecordManager()->AddRecord(NFIDENTID(), pstrRecordName, recordVar, recordKey, recordDesc, recordTag, recordRelation, atoi(pstrRow), bPublic, bPrivate, bSave, bView, nIndex);
+            pClass->GetRecordManager()->AddRecord(NFGUID(), pstrRecordName, recordVar, recordKey, recordDesc, recordTag, recordRelation, atoi(pstrRow), bPublic, bPrivate, bSave, bView, nIndex);
         }
     }
 
@@ -265,7 +266,7 @@ bool NFCLogicClassModule::AddComponents(rapidxml::xml_node<>* pComponentRootNode
             const char* strComponentName = pComponentNode->first_attribute("Name")->value();
             const char* strLanguage = pComponentNode->first_attribute("Language")->value();
             const char* strEnable = pComponentNode->first_attribute("Enable")->value();
-            bool bEnable = boost::lexical_cast<bool>(strEnable);
+            bool bEnable = lexical_cast<bool>(strEnable);
             if (bEnable)
             {
                 if (pClass->GetComponentManager()->GetElement(strComponentName))
@@ -274,8 +275,8 @@ bool NFCLogicClassModule::AddComponents(rapidxml::xml_node<>* pComponentRootNode
                     NFASSERT(0, strComponentName, __FILE__, __FUNCTION__);
                     continue;
                 }
-
-                pClass->GetComponentManager()->AddComponent(strComponentName, strLanguage);
+                NF_SHARE_PTR<NFIComponent> xComponent(NF_NEW NFIComponent(NFGUID(), strComponentName));
+                pClass->GetComponentManager()->AddComponent(strComponentName, xComponent);
             }
         }
     }
@@ -290,13 +291,40 @@ bool NFCLogicClassModule::AddClassInclude(const char* pstrClassFilePath, NF_SHAR
         return false;
     }
 
-    rapidxml::file<> fdoc(pstrClassFilePath);
-    //std::cout << fdoc.data() << std::endl;
-    rapidxml::xml_document<>  doc;
-    doc.parse<0>(fdoc.data());
+    //////////////////////////////////////////////////////////////////////////
+    rapidxml::xml_document<> xDoc;
+    char* pData = NULL;
+    int nDataSize = 0;
+
+    std::string strFile = pPluginManager->GetConfigPath() + pstrClassFilePath;
+    if (!bCipher)
+    {
+        rapidxml::file<> fdoc(strFile.c_str());
+        nDataSize = fdoc.size();
+        pData = new char[nDataSize + 1];
+        strncpy(pData, fdoc.data(), nDataSize);
+    }
+    else
+    {
+        std::string strFileData;
+        if (!ReadFileToString(strFile, strFileData))
+        {
+            return false;
+        }
+
+        std::string strDecode = Decode(strFileData);
+
+        nDataSize = strDecode.length();
+        pData = new char[nDataSize + 1];
+        strncpy(pData, strDecode.data(), nDataSize);
+    }
+
+    pData[nDataSize] = 0;
+    xDoc.parse<0>(pData);
+    //////////////////////////////////////////////////////////////////////////
 
     //support for unlimited layer class inherits
-    rapidxml::xml_node<>* root = doc.first_node();
+    rapidxml::xml_node<>* root = xDoc.first_node();
 
     rapidxml::xml_node<>* pRropertyRootNode = root->first_node("Propertys");
     if (pRropertyRootNode)
@@ -335,16 +363,18 @@ bool NFCLogicClassModule::AddClassInclude(const char* pstrClassFilePath, NF_SHAR
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    if (NULL != pData)
+    {
+        delete []pData;
+    }
+    //////////////////////////////////////////////////////////////////////////
 
     return true;
 }
 
 bool NFCLogicClassModule::AddClass(const char* pstrClassFilePath, NF_SHARE_PTR<NFILogicClass> pClass)
 {
-
-    std::ofstream file;
-    file.open("./Log/NFLogicClass.log");
-
     NF_SHARE_PTR<NFILogicClass> pParent = pClass->GetParent();
     while (pParent.get())
     {
@@ -377,7 +407,7 @@ bool NFCLogicClassModule::AddClass(const char* pstrClassFilePath, NF_SHARE_PTR<N
         pClass->Add(pstrClassFilePath);
     }
 
-    file.close();
+    //file.close();
 
     return true;
 }
@@ -399,7 +429,6 @@ bool NFCLogicClassModule::AddClass(const std::string& strClassName, const std::s
         {
             pChildClass->SetParent(pParentClass);
         }
-
     }
 
     return true;
@@ -407,7 +436,6 @@ bool NFCLogicClassModule::AddClass(const std::string& strClassName, const std::s
 
 bool NFCLogicClassModule::Load(rapidxml::xml_node<>* attrNode, NF_SHARE_PTR<NFILogicClass> pParentClass)
 {
-
     const char* pstrLogicClassName = attrNode->first_attribute("Id")->value();
     const char* pstrType = attrNode->first_attribute("Type")->value();
     const char* pstrPath = attrNode->first_attribute("Path")->value();
@@ -435,19 +463,51 @@ bool NFCLogicClassModule::Load(rapidxml::xml_node<>* attrNode, NF_SHARE_PTR<NFIL
 
 bool NFCLogicClassModule::Load()
 {
-    rapidxml::file<> fdoc(msConfigFileName.c_str());
-    //std::cout << fdoc.data() << std::endl;
-    rapidxml::xml_document<>  doc;
-    doc.parse<0>(fdoc.data());
+    //////////////////////////////////////////////////////////////////////////
+    rapidxml::xml_document<> xDoc;
+    char* pData = NULL;
+    int nDataSize = 0;
 
+    std::string strFile = pPluginManager->GetConfigPath() + msConfigFileName;
+    if (!bCipher)
+    {
+        rapidxml::file<> fdoc(strFile.c_str());
+        nDataSize = fdoc.size();
+        pData = new char[nDataSize + 1];
+        strncpy(pData, fdoc.data(), nDataSize);
+    }
+    else
+    {
+        std::string strFileData;
+        if (!ReadFileToString(strFile, strFileData))
+        {
+            return false;
+        }
+
+        std::string strDecode = Decode(strFileData);
+
+        nDataSize = strDecode.length();
+        pData = new char[nDataSize + 1];
+        strncpy(pData, strDecode.data(), nDataSize);
+    }
+
+    pData[nDataSize] = 0;
+    xDoc.parse<0>(pData);
+    //////////////////////////////////////////////////////////////////////////
     //support for unlimited layer class inherits
-    rapidxml::xml_node<>* root = doc.first_node();
+    rapidxml::xml_node<>* root = xDoc.first_node();
     for (rapidxml::xml_node<>* attrNode = root->first_node(); attrNode; attrNode = attrNode->next_sibling())
     {
         Load(attrNode, NULL);
     }
 
     m_pElementInfoModule->Load();
+    //////////////////////////////////////////////////////////////////////////
+    if (NULL != pData)
+    {
+        delete []pData;
+    }
+    //////////////////////////////////////////////////////////////////////////
     return true;
 }
 
@@ -492,5 +552,171 @@ NF_SHARE_PTR<NFIComponentManager> NFCLogicClassModule::GetClassComponentManager(
 bool NFCLogicClassModule::Clear()
 {
     return true;
+}
 
+std::string NFCLogicClassModule::cepher = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+bool NFCLogicClassModule::IsEncoded(unsigned char c)
+{
+    return (isalnum(c) || (c == '+') || (c == '/'));
+}
+
+std::string NFCLogicClassModule::Encode(unsigned char const* bytes_to_encode, unsigned int in_len)
+{
+    std::string ret;
+    int i = 0;
+    int j = 0;
+    unsigned char char_array_3[3];
+    unsigned char char_array_4[4];
+
+    while (in_len--)
+    {
+        char_array_3[i++] = *(bytes_to_encode++);
+        if (i == 3)
+        {
+            char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+            char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+            char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+            char_array_4[3] = char_array_3[2] & 0x3f;
+
+            for (i = 0; (i < 4) ; i++)
+            {
+                ret += cepher[char_array_4[i]];
+            }
+
+            i = 0;
+        }
+    }
+
+    if (i)
+    {
+        for (j = i; j < 3; j++)
+        {
+            char_array_3[j] = '\0';
+        }
+
+        char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+        char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+        char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+        char_array_4[3] = char_array_3[2] & 0x3f;
+
+        for (j = 0; (j < i + 1); j++)
+        {
+            ret += cepher[char_array_4[j]];
+        }
+
+        while ((i++ < 3))
+        {
+            ret += '=';
+        }
+    }
+
+    return ret;
+}
+
+std::string NFCLogicClassModule::Decode(const std::string& encoded_string)
+{
+    int in_len = encoded_string.size();
+    int i = 0;
+    int j = 0;
+    int in_ = 0;
+    unsigned char char_array_4[4], char_array_3[3];
+    std::string ret;
+
+    while (in_len-- && (encoded_string[in_] != '=') && IsEncoded(encoded_string[in_]))
+    {
+        char_array_4[i++] = encoded_string[in_];
+        in_++;
+        if (i == 4)
+        {
+            for (i = 0; i < 4; i++)
+            {
+                char_array_4[i] = cepher.find(char_array_4[i]);
+            }
+
+            char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+            char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+            char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+            for (i = 0; (i < 3); i++)
+            {
+                ret += char_array_3[i];
+            }
+
+            i = 0;
+        }
+    }
+
+    if (i)
+    {
+        for (j = i; j < 4; j++)
+        {
+            char_array_4[j] = 0;
+        }
+
+        for (j = 0; j < 4; j++)
+        {
+            char_array_4[j] = cepher.find(char_array_4[j]);
+        }
+
+        char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+        char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+        char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+        for (j = 0; (j < i - 1); j++)
+        {
+            ret += char_array_3[j];
+        }
+    }
+
+    return ret;
+}
+
+bool NFCLogicClassModule::ReadFileToString(const std::string& strFile, std::string& strOutData)
+{
+    std::ifstream stream(strFile, std::ios::binary);
+    if (!stream)
+    {
+        throw std::runtime_error(std::string("cannot open file = ") + strFile);
+        return false;
+    }
+
+    stream.unsetf(std::ios::skipws);
+
+    // Determine stream size
+    stream.seekg(0, std::ios::end);
+    size_t size = stream.tellg();
+    stream.seekg(0);
+
+    std::vector<char> m_data;
+    // Load data and add terminating 0
+    m_data.resize(size + 1);
+    stream.read(&m_data.front(), static_cast<std::streamsize>(size));
+    m_data[size] = 0;
+
+    strOutData.append(&m_data.front(), size);
+
+    return true;
+}
+
+bool NFCLogicClassModule::AddClassCallBack(const std::string& strClassName, const CLASS_EVENT_FUNCTOR_PTR& cb)
+{
+    NF_SHARE_PTR<NFILogicClass> pClass = GetElement(strClassName);
+    if (nullptr == pClass)
+    {
+        return false;
+    }
+
+    return pClass->AddClassCallBack(cb);
+}
+
+bool NFCLogicClassModule::DoEvent(const NFGUID& objectID, const std::string& strClassName, const CLASS_OBJECT_EVENT eClassEvent, const NFIDataList& valueList)
+{
+    NF_SHARE_PTR<NFILogicClass> pClass = GetElement(strClassName);
+    if (nullptr == pClass)
+    {
+        return false;
+    }
+
+    return pClass->DoEvent(objectID, eClassEvent, valueList);
 }

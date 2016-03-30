@@ -6,8 +6,8 @@
 //
 // -------------------------------------------------------------------------
 
-#ifndef _NF_MAP_H_
-#define _NF_MAP_H_
+#ifndef NF_MAP_H
+#define NF_MAP_H
 
 #include <map>
 #include <list>
@@ -94,11 +94,6 @@ public:
             return NULL;
         }
 
-        if (mObjectCurIter == mObjectList.end())
-        {
-            return NULL;
-        }
-
         ++mObjectCurIter;
         if (mObjectCurIter != mObjectList.end())
         {
@@ -131,11 +126,6 @@ public:
 
     virtual TD* Next(T& name)
     {
-        if (mObjectCurIter == mObjectList.end())
-        {
-            return NULL;
-        }
-
         if (mObjectCurIter == mObjectList.end())
         {
             return NULL;

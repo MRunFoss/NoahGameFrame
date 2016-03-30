@@ -1,7 +1,6 @@
 // NFLogPlugin.cpp : Defines the exported functions for the DLL application.
 //
 
-//#include "stdafx.h"
 #include "NFLogPlugin.h"
 #include "NFCLogModule.h"
 
@@ -29,10 +28,10 @@ const int NFLogPlugin::GetPluginVersion()
 
 const std::string NFLogPlugin::GetPluginName()
 {
-    GET_PLUGIN_NAME(NFLogPlugin)
+    return GET_CLASS_NAME(NFLogPlugin)
 }
 
-void NFLogPlugin::Install()
+       void NFLogPlugin::Install()
 {
     REGISTER_MODULE(pPluginManager, NFCLogModule)
 }

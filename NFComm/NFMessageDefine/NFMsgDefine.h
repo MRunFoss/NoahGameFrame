@@ -6,8 +6,8 @@
 //
 // -------------------------------------------------------------------------
 
-#ifndef _NF_MSGDEFINE_H_
-#define _NF_MSGDEFINE_H_
+#ifndef NF_MSGDEFINE_H
+#define NF_MSGDEFINE_H
 
 #include "NFLimit.h"
 #include "NFDefine.pb.h"
@@ -19,7 +19,6 @@
 #include "NFComm/NFCore/NFIRecordManager.h"
 #include "NFComm/NFCore/NFIPropertyManager.h"
 #include "NFComm/NFCore/NFList.h"
-#include "NFComm/Define/NFServer_def.h"
 
 // -------------------------------------------------------------------------
 #pragma pack(push,1)
@@ -33,13 +32,13 @@ enum E_CHECK_TYPE
 
 // bool RecordToString( NFIRecord* pRecord, NFMsg::ObjectRecordBase& recordBase, E_CHECK_TYPE nCheckType, const bool bCheck );
 // bool RecordToString( NFIRecordManager* pRecordManager, NFMsg::ObjectRecordList& recordList, E_CHECK_TYPE nCheckType, const bool bCheck );
-// 
+//
 // bool RecordFormString( NFIRecord* pRecord, const NFMsg::ObjectRecordBase& recordBase );
 // bool RecordFormString( NFIRecordManager* pRecordManager, const NFMsg::ObjectRecordList& recordList );
-// 
+//
 // bool PropertyToString( NFIPropertyManager* pProManager, NFMsg::ObjectPropertyList& propertyDB, E_CHECK_TYPE nCheckType, const bool bCheck );
 // bool PropertyListToString( NFList<NFIPropertyManager*>& pProManagerList,NFMsg::MultiObjectPropertyList& propertyDB, E_CHECK_TYPE nCheckType, const bool bCheck );
-// 
+//
 // bool PropertyFormString( NFIPropertyManager* pProManager, const NFMsg::ObjectPropertyList& propertyDB );
 
 #pragma pack(pop)

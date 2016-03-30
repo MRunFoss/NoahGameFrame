@@ -1,19 +1,19 @@
 #include "NFMysqlClusterPlugin.h"
 #include "NFCMysqlClusterModule.h"
+#include "NFCAsyMysqlClusterModule.h"
 #include "NFComm/NFPluginModule/NFIPluginManager.h"
-#include "NFCMysqlConnectMgrModule.h"
 
 #ifdef NF_DYNAMIC_PLUGIN
 
 NF_EXPORT void DllStartPlugin(NFIPluginManager* pm)
 {
-	CREATE_PLUGIN(pm, NFMysqlClusterPlugin)
+    CREATE_PLUGIN(pm, NFMysqlClusterPlugin)
 
 };
 
 NF_EXPORT void DllStopPlugin(NFIPluginManager* pm)
 {
-	DESTROY_PLUGIN(pm, NFMysqlClusterPlugin)
+    DESTROY_PLUGIN(pm, NFMysqlClusterPlugin)
 };
 
 #endif
@@ -28,17 +28,17 @@ const int NFMysqlClusterPlugin::GetPluginVersion()
 
 const std::string NFMysqlClusterPlugin::GetPluginName()
 {
-    GET_PLUGIN_NAME(NFMysqlClusterPlugin)
+    return GET_CLASS_NAME(NFMysqlClusterPlugin)
 }
 
-void NFMysqlClusterPlugin::Install()
+       void NFMysqlClusterPlugin::Install()
 {
     REGISTER_MODULE(pPluginManager, NFCMysqlClusterModule)
-    REGISTER_MODULE(pPluginManager, NFCMysqlConnectMgrModule)
+    REGISTER_MODULE(pPluginManager, NFCAsyMysqlClusterModule)
 }
 
 void NFMysqlClusterPlugin::Uninstall()
 {
-    UNREGISTER_MODULE(pPluginManager, NFCMysqlConnectMgrModule)
+    UNREGISTER_MODULE(pPluginManager, NFCAsyMysqlClusterModule)
     UNREGISTER_MODULE(pPluginManager, NFCMysqlClusterModule)
 }

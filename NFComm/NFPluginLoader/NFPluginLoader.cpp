@@ -18,18 +18,17 @@
 #include "NFCActorManager.h"
 #include "NFComm/Config/NFConfig.h"
 #include "NFComm/NFPluginModule/NFPlatform.h"
-#include "boost/thread.hpp"
 
 #if NF_PLATFORM == NF_PLATFORM_LINUX
+#include <unistd.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <signal.h>
 #endif
 
-#pragma comment( lib, "DbgHelp" )
-
 #if NF_PLATFORM == NF_PLATFORM_WIN
 
+#pragma comment( lib, "DbgHelp" )
 // 创建Dump文件
 void CreateDumpFile(const std::string& strDumpFilePathName, EXCEPTION_POINTERS* pException)
 {
@@ -55,7 +54,7 @@ long ApplicationCrashHandler(EXCEPTION_POINTERS* pException)
     char szDmupName[MAX_PATH];
     tm* ptm = localtime(&t);
 
-    sprintf(szDmupName, "%d_%d_%d_%d_%d_%d.dmp",  ptm->tm_year + 1900, ptm->tm_mon, ptm->tm_mday, ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
+    sprintf_s(szDmupName, "%04d_%02d_%02d_%02d_%02d_%02d.dmp",  ptm->tm_year + 1900, ptm->tm_mon + 1, ptm->tm_mday, ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
     CreateDumpFile(szDmupName, pException);
 
     FatalAppExit(-1,  szDmupName);
@@ -69,7 +68,7 @@ void CloseXButton()
 #if NF_PLATFORM == NF_PLATFORM_WIN
 
     HWND hWnd = GetConsoleWindow();
-    if(hWnd)
+    if (hWnd)
     {
         HMENU hMenu = GetSystemMenu(hWnd, FALSE);
         EnableMenuItem(hMenu, SC_CLOSE, MF_DISABLED | MF_BYCOMMAND);
@@ -79,69 +78,66 @@ void CloseXButton()
 }
 
 bool bExitApp = false;
-boost::thread gThread;
+std::thread gThread;
 
 void ThreadFunc()
 {
-    while ( !bExitApp )
+    while (!bExitApp)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-        std::string s;
-        std::cin >> s;
-        if ( 0 == stricmp( s.c_str(), "exit" ) )
-        {
-            bExitApp = true;
-        }
+        //         std::string s;
+        //         std::cin >> s;
+        //         if ( 0 == stricmp( s.c_str(), "exit" ) )
+        //         {
+        //             bExitApp = true;
+        //         }
     }
 }
 
 void CreateBackThread()
 {
-    gThread = boost::thread(boost::bind(&ThreadFunc));
-	//auto f = std::async (std::launch::async, std::bind(ThreadFunc));
+    //gThread = std::thread(std::bind(&ThreadFunc));
+    //auto f = std::async (std::launch::async, std::bind(ThreadFunc));
     //std::cout << "CreateBackThread, thread ID = " << gThread.get_id() << std::endl;
 }
 
 void InitDaemon()
 {
 #if NF_PLATFORM == NF_PLATFORM_LINUX
-	daemon(1, 0);
+    daemon(1, 0);
 
-	// ignore signals
-	signal(SIGINT,  SIG_IGN);
-	signal(SIGHUP,  SIG_IGN);
-	signal(SIGQUIT, SIG_IGN);
-	signal(SIGPIPE, SIG_IGN);
-	signal(SIGTTOU, SIG_IGN);
-	signal(SIGTTIN, SIG_IGN);
-	signal(SIGTERM, SIG_IGN);
+    // ignore signals
+    signal(SIGINT,  SIG_IGN);
+    signal(SIGHUP,  SIG_IGN);
+    signal(SIGQUIT, SIG_IGN);
+    signal(SIGPIPE, SIG_IGN);
+    signal(SIGTTOU, SIG_IGN);
+    signal(SIGTTIN, SIG_IGN);
+    signal(SIGTERM, SIG_IGN);
 #endif
 }
 
 void PrintfLogo()
 {
 #if NF_PLATFORM == NF_PLATFORM_WIN
-    std::cout << "\n" << std::endl;
-
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+#endif
 
+    std::cout << "\n" << std::endl;
     std::cout << "★★★★★★★★★★★★★★★★★★★★★★★★" << std::endl;
     std::cout << "★                                            ★" << std::endl;
     std::cout << "★                 NoahFrame                  ★" << std::endl;
-    std::cout << "★   Copyright (c) 2011-2015  NFrame Studio   ★" << std::endl;
+    std::cout << "★   Copyright (c) 2011-2016  NFrame Studio   ★" << std::endl;
     std::cout << "★             All rights reserved.           ★" << std::endl;
     std::cout << "★                                            ★" << std::endl;
     std::cout << "★★★★★★★★★★★★★★★★★★★★★★★★" << std::endl;
-
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-
     std::cout << "\n" << std::endl;
+
+#if NF_PLATFORM == NF_PLATFORM_WIN
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 #endif // NF_PLATFORM
 }
-
-unsigned long unStartTickTime = 0;
-unsigned long unLastTickTime = 0;
 
 #if NF_PLATFORM == NF_PLATFORM_WIN || NF_PLATFORM == NF_PLATFORM_LINUX || NF_PLATFORM == NF_PLATFORM_APPLE
 int main(int argc, char* argv[])
@@ -152,25 +148,27 @@ int main(int argc, char* argv[])
 #if NF_PLATFORM == NF_PLATFORM_WIN
     SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)ApplicationCrashHandler);
 #elif NF_PLATFORM == NF_PLATFORM_LINUX
-	bool bDaemon = false;
+    bool bDaemon = false;
 
-	if (argc > 1)
-	{
-		if (0 == NFSTRICMP((const char*)argv[1], "-d"))
-		{
-			bDaemon = true;
-		}
-	}
+    if (argc > 1)
+    {
+        if (0 == NFSTRICMP((const char*)argv[1], "-d"))
+        {
+            bDaemon = true;
+        }
+    }
 
-	if (bDaemon)
-	{
-		InitDaemon();
-	}
+    if (bDaemon)
+    {
+        InitDaemon();
+    }
 
+    signal(SIGPIPE, SIG_IGN);
+    signal(SIGCHLD, SIG_IGN);
 
 #endif
-	NFCActorManager::GetSingletonPtr()->Init();
-	NFCActorManager::GetSingletonPtr()->AfterInit();
+    NFCActorManager::GetSingletonPtr()->Init();
+    NFCActorManager::GetSingletonPtr()->AfterInit();
     NFCActorManager::GetSingletonPtr()->CheckConfig();
 
     PrintfLogo();
@@ -178,35 +176,22 @@ int main(int argc, char* argv[])
     CloseXButton();
     CreateBackThread();
 
-    unStartTickTime = ::NF_GetTickCount();
-    unLastTickTime = unStartTickTime;
-
     while (!bExitApp)    //DEBUG版本崩溃，RELEASE不崩
     {
         while (true)
         {
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
             if (bExitApp)
             {
                 break;
             }
 
-			unsigned long unNowTickTime = ::NF_GetTickCount();
-			float fStartedTime = float(unNowTickTime - unStartTickTime) / 1000;
-			float fLastTime = float(unNowTickTime - unLastTickTime) / 1000;
-
-			if (fStartedTime < 0.001f)
-			{
-				fStartedTime = 0.0f;
-			}
-
 #if NF_PLATFORM == NF_PLATFORM_WIN
             __try
             {
 #endif
-                NFCActorManager::GetSingletonPtr()->Execute(fLastTime, fStartedTime);
-				unLastTickTime = unNowTickTime;
+                NFCActorManager::GetSingletonPtr()->Execute();
 #if NF_PLATFORM == NF_PLATFORM_WIN
             }
             __except (ApplicationCrashHandler(GetExceptionInformation()))
@@ -216,8 +201,8 @@ int main(int argc, char* argv[])
         }
     }
 
-	NFCActorManager::GetSingletonPtr()->BeforeShut();
-	NFCActorManager::GetSingletonPtr()->Shut();
+    NFCActorManager::GetSingletonPtr()->BeforeShut();
+    NFCActorManager::GetSingletonPtr()->Shut();
 
     NFCActorManager::GetSingletonPtr()->ReleaseInstance();
 

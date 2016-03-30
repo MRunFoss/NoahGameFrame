@@ -6,11 +6,10 @@
 //
 // -------------------------------------------------------------------------
 
-#ifndef _NFC_HELLO_WORLD5_H_
-#define _NFC_HELLO_WORLD5_H_
+#ifndef NFC_HELLO_WORLD5_H
+#define NFC_HELLO_WORLD5_H
 
 #include "NFComm/NFPluginModule/NFIKernelModule.h"
-#include "NFComm/NFPluginModule/NFIEventProcessModule.h"
 #include "NFComm/NFPluginModule/NFIElementInfoModule.h"
 #include "NFComm/NFPluginModule/NFIPluginManager.h"
 
@@ -26,17 +25,16 @@ public:
     virtual bool Init();
     virtual bool AfterInit();
 
-    virtual bool Execute(const float fLasFrametime, const float fStartedTime);
+    virtual bool Execute();
 
     virtual bool BeforeShut();
     virtual bool Shut();
 
-    virtual int OnSyncEvent(const NFIDENTID& self, const int nActorID, const int event, const std::string& arg);
+    virtual int OnSyncEvent(const NFGUID& self, const int nActorID, const int event, const std::string& arg);
 protected:
     unsigned long mLastTime;
 protected:
     NFIKernelModule* m_pKernelModule;
-    NFIEventProcessModule* m_pEventProcessModule;
     NFIElementInfoModule* m_pElementInfoModule;
 };
 

@@ -7,9 +7,10 @@
 // -------------------------------------------------------------------------
 
 
-//#include "stdafx.h"
 #include "NFCWorldChatModule.h"
 #include "NFWorldChatPlugin.h"
+#include "NFCWorldChatGroupModule.h"
+#include "NFCChatGroupBroadcastModule.h"
 
 NF_EXPORT void DllStartPlugin(NFIPluginManager* pm)
 {
@@ -32,18 +33,22 @@ const int NFWorldChatPlugin::GetPluginVersion()
 
 const std::string NFWorldChatPlugin::GetPluginName()
 {
-    GET_PLUGIN_NAME(NFWorldChatPlugin)
+    return GET_CLASS_NAME(NFWorldChatPlugin)
 }
 
-void NFWorldChatPlugin::Install()
+       void NFWorldChatPlugin::Install()
 {
 
     REGISTER_MODULE(pPluginManager, NFCWorldChatModule)
+    REGISTER_MODULE(pPluginManager, NFCWorldChatGroupModule)
+    REGISTER_MODULE(pPluginManager, NFCChatGroupBroadcastModule)
 
 
 }
 
 void NFWorldChatPlugin::Uninstall()
 {
+    UNREGISTER_MODULE(pPluginManager, NFCChatGroupBroadcastModule)
+    UNREGISTER_MODULE(pPluginManager, NFCWorldChatGroupModule)
     UNREGISTER_MODULE(pPluginManager, NFCWorldChatModule)
 }

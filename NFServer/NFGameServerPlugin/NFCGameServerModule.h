@@ -6,13 +6,12 @@
 //
 // -------------------------------------------------------------------------
 
-#ifndef _NFC_GAMESERVER_MODULE_H_
-#define _NFC_GAMESERVER_MODULE_H_
+#ifndef NFC_GAMESERVER_MODULE_H
+#define NFC_GAMESERVER_MODULE_H
 
 #include "NFComm/NFCore/NFMap.h"
 #include "NFComm/NFPluginModule/NFIKernelModule.h"
 #include "NFComm/NFPluginModule/NFIGameServerModule.h"
-#include "NFComm/NFPluginModule/NFIEventProcessModule.h"
 #include "NFComm/NFPluginModule/NFILogicClassModule.h"
 #include "NFComm/NFPluginModule/NFIUUIDModule.h"
 
@@ -20,7 +19,7 @@ class NFCGameServerModule
     : public NFIGameServerModule
 {
 public:
-    NFCGameServerModule( NFIPluginManager* p )
+    NFCGameServerModule(NFIPluginManager* p)
     {
         pPluginManager = p;
     }
@@ -28,7 +27,7 @@ public:
 
     virtual bool Init();
     virtual bool Shut();
-    virtual bool Execute( const float fLasFrametime, const float fStartedTime );
+    virtual bool Execute();
 
     virtual bool AfterInit();
     virtual bool BeforeShut();
@@ -40,7 +39,6 @@ protected:
 protected:
     NFIUUIDModule* m_pUUIDModule;
     NFILogicClassModule* m_pLogicClassModule;
-    NFIEventProcessModule* m_pEventProcessModule;
     NFIKernelModule* m_pKernelModule;
 private:
 };

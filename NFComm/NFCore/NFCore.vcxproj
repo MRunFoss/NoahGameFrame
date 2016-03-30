@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
@@ -20,14 +20,14 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -57,7 +57,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_X64;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\Dependencies\boost_1_53_0\;$(SolutionDir)\Dependencies\Theron-6.00.01\Include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\Dependencies\;$(SolutionDir)\Dependencies\Theron\Include\</AdditionalIncludeDirectories>
       <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
@@ -80,7 +80,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_X64;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\Dependencies\boost_1_53_0\;$(SolutionDir)\Dependencies\Theron-6.00.01\Include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\Dependencies\;$(SolutionDir)\Dependencies\Theron\Include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -93,12 +93,13 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="NFCComponent.h" />
+    <ClInclude Include="NFCAddConsistentHash.hpp" />
     <ClInclude Include="NFCComponentManager.h" />
     <ClInclude Include="NFCConsistentHash.hpp" />
     <ClInclude Include="NFCDataList.h" />
+    <ClInclude Include="NFCEventManager.h" />
     <ClInclude Include="NFCHeartBeatManager.h" />
-    <ClInclude Include="NFCMemory.h" />
+    <ClInclude Include="NFCMemManger.h" />
     <ClInclude Include="NFCObject.h" />
     <ClInclude Include="NFCProperty.h" />
     <ClInclude Include="NFCPropertyManager.h" />
@@ -106,8 +107,8 @@
     <ClInclude Include="NFIComponent.h" />
     <ClInclude Include="NFIComponentManager.h" />
     <ClInclude Include="NFIDataList.h" />
+    <ClInclude Include="NFIEventManager.h" />
     <ClInclude Include="NFIHeartBeatManager.h" />
-    <ClInclude Include="NFIMemory.h" />
     <ClInclude Include="NFMapEx.h" />
     <ClInclude Include="NFQueue.h" />
     <ClInclude Include="NFSingleton.h" />
@@ -124,11 +125,11 @@
     <ClInclude Include="NFTimer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="NFCComponent.cpp" />
     <ClCompile Include="NFCComponentManager.cpp" />
     <ClCompile Include="NFCDataList.cpp" />
+    <ClCompile Include="NFCEventManager.cpp" />
     <ClCompile Include="NFCHeartBeatManager.cpp" />
-    <ClCompile Include="NFCMemory.cpp" />
+    <ClCompile Include="NFCMemManger.cpp" />
     <ClCompile Include="NFCObject.cpp" />
     <ClCompile Include="NFCProperty.cpp" />
     <ClCompile Include="NFCPropertyManager.cpp" />

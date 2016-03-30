@@ -6,15 +6,14 @@
 //    @Desc             :
 // -------------------------------------------------------------------------
 
-#ifndef _NFC_PROXYSERVER_SERVER_MODULE_H_
-#define _NFC_PROXYSERVER_SERVER_MODULE_H_
+#ifndef NFC_PROXYSERVER_SERVER_MODULE_H
+#define NFC_PROXYSERVER_SERVER_MODULE_H
 
 //  the cause of sock'libariy, thenfore "NFCNet.h" much be included first.
 
 #include "NFComm/NFMessageDefine/NFMsgDefine.h"
 #include "NFComm/NFPluginModule/NFIProxyServerNet_ServerModule.h"
 #include "NFComm/NFPluginModule/NFIProxyServerToWorldModule.h"
-#include "NFComm/NFPluginModule/NFIEventProcessModule.h"
 #include "NFComm/NFPluginModule/NFIKernelModule.h"
 #include "NFComm/NFPluginModule/NFILogicClassModule.h"
 #include "NFComm/NFPluginModule/NFILogModule.h"
@@ -22,6 +21,7 @@
 #include "NFComm/NFPluginModule/NFIElementInfoModule.h"
 #include "NFComm/NFPluginModule/NFIUUIDModule.h"
 #include "NFComm/NFPluginModule/NFIProxyServerToGameModule.h"
+#include "NFComm/NFCore/NFCConsistentHash.hpp"
 
 class NFCProxyServerNet_ServerModule : public NFIProxyServerNet_ServerModule
 {
@@ -33,53 +33,52 @@ public:
 
     virtual bool Init();
     virtual bool Shut();
-    virtual bool Execute(const float fLasFrametime, const float fStartedTime);
+    virtual bool Execute();
 
     virtual bool AfterInit();
 
-	virtual void LogRecive(const char* str){}
-	virtual void LogSend(const char* str){}
+    virtual void LogRecive(const char* str) {}
+    virtual void LogSend(const char* str) {}
 
-    virtual int Transpond(const NFIPacket& msg);
+    virtual int Transpond(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen);
 
-	//进入游戏成功
-	virtual int EnterGameSuccessEvent(const NFIDENTID xClientID, const NFIDENTID xPlayerID);
+    //进入游戏成功
+    virtual int EnterGameSuccessEvent(const NFGUID xClientID, const NFGUID xPlayerID);
 
 protected:
 
-	int OnReciveClientPack(const NFIPacket& msg);
-	int OnSocketClientEvent(const int nSockIndex, const NF_NET_EVENT eEvent, NFINet* pNet);
+    void OnReciveClientPack(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen);
+    void OnSocketClientEvent(const int nSockIndex, const NF_NET_EVENT eEvent, NFINet* pNet);
 
-	//连接丢失,删2层(连接对象，帐号对象)
-	void OnClientDisconnect(const int nAddress);
-	//有连接
-	void OnClientConnected(const int nAddress);
+    //连接丢失,删2层(连接对象，帐号对象)
+    void OnClientDisconnect(const int nAddress);
+    //有连接
+    void OnClientConnected(const int nAddress);
 
-    int OnConnectKeyProcess(const NFIPacket& msg);
-    int OnReqServerListProcess(const NFIPacket& msg);
-    int OnSelectServerProcess(const NFIPacket& msg);
-    int OnReqRoleListProcess(const NFIPacket& msg);
-    int OnReqCreateRoleProcess(const NFIPacket& msg);
-    int OnReqDelRoleProcess(const NFIPacket& msg);
-    int OnReqEnterGameServer(const NFIPacket& msg);
+    int OnConnectKeyProcess(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen);
+    int OnReqServerListProcess(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen);
+    int OnSelectServerProcess(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen);
+    int OnReqRoleListProcess(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen);
+    int OnReqCreateRoleProcess(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen);
+    int OnReqDelRoleProcess(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen);
+    int OnReqEnterGameServer(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen);
 
 
     //客户端的连接60秒删掉
-    int HB_OnConnectCheckTime( const NFIDENTID& self, const std::string& strHeartBeat, const float fTime, const int nCount, const NFIDataList& var );
+    int HB_OnConnectCheckTime(const NFGUID& self, const std::string& strHeartBeat, const float fTime, const int nCount, const NFIDataList& var);
     //////////////////////////////////////////////////////////////////////////
 protected:
 
-	NFMapEx<NFIDENTID, int> mxClientIdent;
-
+    NFMapEx<NFGUID, int> mxClientIdent;
+	NFCConsistentHash mxConsistentHash;
 protected:
-	NFIProxyServerToWorldModule* m_pProxyToWorldModule;
-	NFIProxyServerToGameModule* m_pProxyServerToGameModule;
-	NFIKernelModule* m_pKernelModule;
+    NFIProxyServerToWorldModule* m_pProxyToWorldModule;
+    NFIProxyServerToGameModule* m_pProxyServerToGameModule;
+    NFIKernelModule* m_pKernelModule;
     NFILogModule* m_pLogModule;
-	NFIElementInfoModule* m_pElementInfoModule;
+    NFIElementInfoModule* m_pElementInfoModule;
     NFILogicClassModule* m_pLogicClassModule;
-    NFIEventProcessModule* m_pEventProcessModule;
-	NFIUUIDModule* m_pUUIDModule;
+    NFIUUIDModule* m_pUUIDModule;
 
 };
 

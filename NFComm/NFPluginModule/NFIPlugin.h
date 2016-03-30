@@ -6,28 +6,38 @@
 //
 // -------------------------------------------------------------------------
 
-#ifndef _NFI_PLUGIN_H_
-#define _NFI_PLUGIN_H_
+#ifndef NFI_PLUGIN_H
+#define NFI_PLUGIN_H
 
 #include <iostream>
-#include "NFILogicModule.h"
+#include <assert.h>
 #include "NFComm/NFCore/NFMap.h"
+#include "NFComm/NFPluginModule/NFIActor.h"
+#include "NFComm/NFPluginModule/NFILogicModule.h"
 #include "NFComm/NFPluginModule/NFPlatform.h"
-#include "NFIActor.h"
-#include "NFIPluginManager.h"
+#include "NFComm/NFPluginModule/NFIPluginManager.h"
 
 #define REGISTER_MODULE(pManager, className)  NFILogicModule* pRegisterModule##className= new className(pManager); \
     pRegisterModule##className->strName = (#className); \
     pManager->AddModule( (#className), pRegisterModule##className );AddElement( (#className), pRegisterModule##className );
 
 #define UNREGISTER_MODULE(pManager, className) NFILogicModule* pUnRegisterModule##className =  \
-    dynamic_cast<NFILogicModule*>( pManager->FindModule( (#className) ) ); pManager->RemoveModule( (#className) ); delete pUnRegisterModule##className;
+        dynamic_cast<NFILogicModule*>( pManager->FindModule( (#className) ) ); pManager->RemoveModule( (#className) ); RemoveElement( (#className) ); delete pUnRegisterModule##className;
 
 #define CREATE_PLUGIN(pManager, className)  NFIPlugin* pCreatePlugin##className = new className(pManager); pManager->Registered( pCreatePlugin##className );
 
 #define DESTROY_PLUGIN(pManager, className) pManager->UnsRegistered( pManager->FindPlugin((#className)) );
 
-#define GET_PLUGIN_NAME(className) return (#className);
+#define GET_CLASS_NAME(className) (#className);
+
+
+#define REGISTER_COMPONENT(pManager, className)  NFIComponent* pRegisterComponent##className= new className(pManager); \
+    pRegisterComponent##className->strName = (#className); \
+    pManager->AddComponent( (#className), pRegisterComponent##className );
+
+#define UNREGISTER_COMPONENT(pManager, className) NFIComponent* pRegisterComponent##className =  \
+        dynamic_cast<NFIComponent*>( pManager->FindComponent( (#className) ) ); pManager->RemoveComponent( (#className) ); delete pRegisterComponent##className;
+
 
 class NFIPluginManager;
 
@@ -45,12 +55,14 @@ public:
 
     virtual bool Init()
     {
-        fLastTotal = 0.0f;
-
         NFILogicModule* pModule = First();
         while (pModule)
         {
-            pModule->Init();
+            bool bRet = pModule->Init();
+            if (!bRet)
+            {
+                assert(0);
+            }
 
             pModule = Next();
         }
@@ -62,7 +74,11 @@ public:
         NFILogicModule* pModule = First();
         while (pModule)
         {
-            pModule->AfterInit();
+            bool bRet = pModule->AfterInit();
+            if (!bRet)
+            {
+                assert(0);
+            }
 
             pModule = Next();
         }
@@ -82,21 +98,15 @@ public:
         return true;
     }
 
-    virtual bool Execute(const float fLastFrametime, const float fStartedTime)
+    virtual bool Execute()
     {
-
-		//Ã¿Ö¡±ØÐëExecute
-		fLastTotal = fLastFrametime;
-
         NFILogicModule* pModule = First();
         while (pModule)
         {
-            pModule->Execute(fLastTotal, fStartedTime);
+            pModule->Execute();
 
             pModule = Next();
         }
-
-        fLastTotal = 0.0f;
 
         return true;
     }
@@ -130,7 +140,6 @@ public:
 
 protected:
     NFIPluginManager* pPluginManager;
-    float fLastTotal;
 };
 
 #endif

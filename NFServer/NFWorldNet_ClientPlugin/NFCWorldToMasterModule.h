@@ -6,19 +6,19 @@
 //    @Desc             :
 // -------------------------------------------------------------------------
 
-#ifndef _NFC_WORLDNET_CLIENT_MODULE_H_
-#define _NFC_WORLDNET_CLIENT_MODULE_H_
+#ifndef NFC_WORLDNET_CLIENT_MODULE_H
+#define NFC_WORLDNET_CLIENT_MODULE_H
 
 //  the cause of sock'libariy, thenfore "NFCNet.h" much be included first.
 
 #include "NFComm/NFMessageDefine/NFMsgDefine.h"
 #include "NFComm/NFPluginModule/NFIWorldToMasterModule.h"
-#include "NFComm/NFPluginModule/NFIEventProcessModule.h"
 #include "NFComm/NFPluginModule/NFIWorldLogicModule.h"
 #include "NFComm/NFPluginModule/NFINetModule.h"
 #include "NFComm/NFPluginModule/NFILogicClassModule.h"
 #include "NFComm/NFPluginModule/NFIElementInfoModule.h"
 #include "NFComm/NFPluginModule/NFILogModule.h"
+#include "NFComm/NFPluginModule/NFIWorldNet_ServerModule.h"
 
 class NFCWorldToMasterModule
     : public NFIWorldToMasterModule
@@ -32,42 +32,40 @@ public:
     virtual bool Init();
     virtual bool BeforeShut();
     virtual bool Shut();
-    virtual bool Execute(const float fLasFrametime, const float fStartedTime);
+    virtual bool Execute();
     virtual bool AfterInit();
 
-	virtual void LogRecive(const char* str){}
-	virtual void LogSend(const char* str){}
+    virtual void LogRecive(const char* str) {}
+    virtual void LogSend(const char* str) {}
 
 protected:
 
-protected:
+    void OnReciveMSPack(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen);
+    void OnSocketMSEvent(const int nSockIndex, const NF_NET_EVENT eEvent, NFINet* pNet);
 
-	int OnReciveMSPack(const NFIPacket& msg);
-	int OnSocketMSEvent(const int nSockIndex, const NF_NET_EVENT eEvent, NFINet* pNet);
+    //连接丢失,删2层(连接对象，帐号对象)
+    void OnClientDisconnect(const int nAddress);
+    //有连接
+    void OnClientConnected(const int nAddress);
 
-	//连接丢失,删2层(连接对象，帐号对象)
-	void OnClientDisconnect(const int nAddress);
-	//有连接
-	void OnClientConnected(const int nAddress);
-
-	virtual void LogServerInfo( const std::string& strServerInfo );
+    virtual void LogServerInfo(const std::string& strServerInfo);
 
 
     void Register(NFINet* pNet);
     void RefreshWorldInfo();
 
-    int OnSelectServerProcess(const NFIPacket& msg);
-    int OnKickClientProcess(const NFIPacket& msg);
+    int OnSelectServerProcess(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen);
+    int OnKickClientProcess(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen);
 
-    int OnSelectServerResultsEvent(const NFIDENTID& object, const int nEventID, const NFIDataList& var);
 
 private:
 
     NFILogModule* m_pLogModule;
-	NFIElementInfoModule* m_pElementInfoModule;
-	NFILogicClassModule* m_pLogicClassModule;
+    NFIElementInfoModule* m_pElementInfoModule;
+    NFILogicClassModule* m_pLogicClassModule;
     NFIWorldLogicModule* m_pWorldLogicModule;
-    NFIEventProcessModule* m_pEventProcessModule;
+    NFIWorldNet_ServerModule* m_pWorldNet_ServerModule;
+
 };
 
 #endif

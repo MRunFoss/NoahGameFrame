@@ -6,8 +6,8 @@
 //
 // -------------------------------------------------------------------------
 
-#ifndef _NFI_PLATFORM_DATA_MODULE_H_
-#define _NFI_PLATFORM_DATA_MODULE_H_
+#ifndef _NFI_PLATFORM_DATA_MODULE_H
+#define _NFI_PLATFORM_DATA_MODULE_H
 
 #include "NFComm/Config/NFConfig.h"
 #include "NFComm/NFCore/NFCDataList.h"
@@ -28,7 +28,7 @@ public:
     //int& nState:0为正确可登录，>0为其他各种错误,比如封号等
     virtual int ConfirmAccountInfo(const std::string& strAccount, const std::string& strPassword) = 0;
 
-	virtual int SetAccountState(const std::string& strAccount, const int nState) = 0;
+    virtual int SetAccountState(const std::string& strAccount, const int nState) = 0;
 
 };
 

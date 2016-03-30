@@ -6,13 +6,10 @@
 //
 // -------------------------------------------------------------------------
 
-#ifndef _NFI_LOGIC_MODULE_H_
-#define _NFI_LOGIC_MODULE_H_
+#ifndef NFI_LOGIC_MODULE_H
+#define NFI_LOGIC_MODULE_H
 
 #include <string>
-#include "NFComm/Define/NFObject_def.h"
-#include "NFComm/Define/NFItem_def.h"
-#include "NFComm/Define/NFSkill_def.h"
 #include "NFComm/NFCore/NFMap.h"
 #include "NFComm/NFCore/NFList.h"
 #include "NFComm/NFCore/NFDefine.h"
@@ -20,22 +17,42 @@
 #include "NFComm/NFCore/NFIRecord.h"
 #include "NFComm/NFEventDefine/NFEventDefine.h"
 
+template<typename DerivedType, typename BaseType>
+class TIsDerived
+{
+public:
+    static int AnyFunction(BaseType* base)
+    {
+        return 1;
+    }
+
+    static  char AnyFunction(void* t2)
+    {
+        return 0;
+    }
+
+    enum
+    {
+        Result = (sizeof(int) == sizeof(AnyFunction((DerivedType*)NULL))),
+    };
+
+};
 class NFIPluginManager;
 
 class NFILogicModule
 {
 
 public:
-	NFILogicModule()
+    NFILogicModule()
     {
         bCanReload = true;
     }
 
-	virtual ~NFILogicModule(){}
-	
-	virtual bool Init()
+    virtual ~NFILogicModule() {}
+
+    virtual bool Init()
     {
-        
+
         return true;
     }
 
@@ -59,18 +76,18 @@ public:
         return true;
     }
 
-    virtual bool Execute(const float fLasFrametime, const float fStartedTime)
+    virtual bool Execute()
     {
         return true;
     }
 
     virtual void OnReload(const char* strModuleName, NFILogicModule* pModule)
     {
-		BeforeShut();
-		Shut();
+        BeforeShut();
+        Shut();
 
-		Init();
-		AfterInit();
+        Init();
+        AfterInit();
     }
 
     virtual NFIPluginManager* GetPluginManager() const

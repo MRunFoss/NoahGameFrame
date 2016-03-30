@@ -7,15 +7,14 @@
 //     @Changed         : NFCProxyConnectObject Add HeartBeat by hahaya 2013-11-1
 // -------------------------------------------------------------------------
 
-#ifndef _NFC_PROXYSERVER_NETCLIENT_MODULE_H_
-#define _NFC_PROXYSERVER_NETCLIENT_MODULE_H_
+#ifndef NFC_PROXYSERVER_NETCLIENT_MODULE_H
+#define NFC_PROXYSERVER_NETCLIENT_MODULE_H
 
 #include <string>
 #include "NFComm/NFMessageDefine/NFMsgDefine.h"
 #include "NFComm/NFCore/NFCHeartBeatManager.h"
 #include "NFComm/NFPluginModule/NFIProxyServerToWorldModule.h"
 #include "NFComm/NFPluginModule/NFIProxyServerNet_ServerModule.h"
-#include "NFComm/NFPluginModule/NFIEventProcessModule.h"
 #include "NFComm/NFPluginModule/NFIKernelModule.h"
 #include "NFComm/NFPluginModule/NFIProxyLogicModule.h"
 #include "NFComm/NFPluginModule/NFINetModule.h"
@@ -34,30 +33,30 @@ public:
 
     virtual bool Init();
     virtual bool Shut();
-    virtual bool Execute(const float fLasFrametime, const float fStartedTime);
+    virtual bool Execute();
 
     virtual bool AfterInit();
 
-	virtual void LogRecive(const char* str){}
-	virtual void LogSend(const char* str){}
+    virtual void LogRecive(const char* str) {}
+    virtual void LogSend(const char* str) {}
 
     virtual bool VerifyConnectData(const std::string& strAccount, const std::string& strKey);
 
 protected:
 
-	int OnReciveWSPack(const NFIPacket& msg);
-	int OnSocketWSEvent(const int nSockIndex, const NF_NET_EVENT eEvent, NFINet* pNet);
+    void OnReciveWSPack(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen);
+    void OnSocketWSEvent(const int nSockIndex, const NF_NET_EVENT eEvent, NFINet* pNet);
 
     void Register(NFINet* pNet);
 
-    int OnSelectServerResultProcess(const NFIPacket& msg);
-    int OnServerInfoProcess(const NFIPacket& msg);
+    void OnSelectServerResultProcess(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen);
+    void OnServerInfoProcess(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen);
 
-	virtual void LogServerInfo(const std::string& strServerInfo);
+    virtual void LogServerInfo(const std::string& strServerInfo);
 private:
-    struct ConnectData 
+    struct ClientConnectData
     {
-        ConnectData()
+        ClientConnectData()
         {
             strAccount = "";
             strConnectKey = "";
@@ -68,18 +67,17 @@ private:
     };
 
 
-    NFMapEx<std::string, ConnectData> mWantToConnectMap;
+    NFMapEx<std::string, ClientConnectData> mWantToConnectMap;
 
 private:
 
     NFILogModule* m_pLogModule;
     NFIProxyLogicModule* m_pProxyLogicModule;
     NFIKernelModule* m_pKernelModule;
-    NFIEventProcessModule* m_pEventProcessModule;
     NFIProxyServerNet_ServerModule* m_pProxyServerNet_ServerModule;
-	NFIElementInfoModule* m_pElementInfoModule;
-	NFILogicClassModule* m_pLogicClassModule;
-	NFIClusterClientModule* m_pToGameServerClusterClient;
+    NFIElementInfoModule* m_pElementInfoModule;
+    NFILogicClassModule* m_pLogicClassModule;
+    NFIClusterClientModule* m_pToGameServerClusterClient;
 
 };
 

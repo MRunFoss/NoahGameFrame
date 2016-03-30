@@ -11,10 +11,36 @@
 #include "NFComm/Config/NFConfig.h"
 #include "NFComm/NFPluginModule/NFPlatform.h"
 #include "NFComm/NFMessageDefine/NFMsgShare.pb.h"
+#include "NFComm/NFPluginModule/NFINetModule.h"
 
 bool NFCWorldGuildModule::Init()
 {
+    m_pWorldNet_ServerModule = dynamic_cast<NFIWorldNet_ServerModule*>(pPluginManager->FindModule("NFCWorldNet_ServerModule"));
+    m_pLogModule = dynamic_cast<NFILogModule*>(pPluginManager->FindModule("NFCLogModule"));
 
+    assert(NULL != m_pWorldNet_ServerModule);
+    assert(NULL != m_pLogModule);
+
+    if (!m_pWorldNet_ServerModule->AddReciveCallBack(NFMsg::EGMI_REQ_CREATE_GUILD, this, &NFCWorldGuildModule::OnCreateGuildProcess))
+    {
+        return false;
+    }
+    if (!m_pWorldNet_ServerModule->AddReciveCallBack(NFMsg::EGMI_REQ_JOIN_GUILD, this, &NFCWorldGuildModule::OnJoinGuildProcess))
+    {
+        return false;
+    }
+    if (!m_pWorldNet_ServerModule->AddReciveCallBack(NFMsg::EGMI_REQ_LEAVE_GUILD, this, &NFCWorldGuildModule::OnLeaveGuildProcess))
+    {
+        return false;
+    }
+    if (!m_pWorldNet_ServerModule->AddReciveCallBack(NFMsg::EGMI_REQ_OPR_GUILD, this, &NFCWorldGuildModule::OnOprGuildMemberProcess))
+    {
+        return false;
+    }
+    if (!m_pWorldNet_ServerModule->AddReciveCallBack(NFMsg::EGMI_REQ_SEARCH_GUILD, this, &NFCWorldGuildModule::OnSearchGuildProcess))
+    {
+        return false;
+    }
 
     return true;
 }
@@ -24,21 +50,17 @@ bool NFCWorldGuildModule::Shut()
     return true;
 }
 
-bool NFCWorldGuildModule::Execute(const float fLasFrametime, const float fStartedTime)
+bool NFCWorldGuildModule::Execute()
 {
-
-
     return true;
 }
 
 bool NFCWorldGuildModule::AfterInit()
 {
-    m_pEventProcessModule = dynamic_cast<NFIEventProcessModule*>(pPluginManager->FindModule("NFCEventProcessModule"));
-    m_pKernelModule = dynamic_cast<NFIKernelModule*>(pPluginManager->FindModule("NFCKernelModule"));
-    m_pUUIDModule = dynamic_cast<NFIUUIDModule*>(pPluginManager->FindModule("NFCUUIDModule"));
-    m_pWorldGuildDataModule = dynamic_cast<NFIWorldGuildDataModule*>(pPluginManager->FindModule("NFCWorldGuildDataModule"));
+    m_pKernelModule = pPluginManager->FindModule<NFIKernelModule>("NFCKernelModule");
+    m_pUUIDModule = pPluginManager->FindModule<NFIUUIDModule>("NFCUUIDModule");
+    m_pWorldGuildDataModule = pPluginManager->FindModule<NFIWorldGuildDataModule>("NFCWorldGuildDataModule");
 
-    assert(NULL != m_pEventProcessModule);
     assert(NULL != m_pKernelModule);
     assert(NULL != m_pUUIDModule);
     assert(NULL != m_pWorldGuildDataModule);
@@ -46,28 +68,28 @@ bool NFCWorldGuildModule::AfterInit()
     return true;
 }
 
-NFIDENTID NFCWorldGuildModule::CreateGuild( const NFIDENTID& self, const std::string& strName, const std::string& strRoleName, const int nLevel, const int nJob , const int nDonation , const int nVIP)
+const NFGUID& NFCWorldGuildModule::CreateGuild(const NFGUID& self, const std::string& strName, const std::string& strRoleName, const int nLevel, const int nJob , const int nDonation , const int nVIP)
 {
     if (strName.empty())
     {
-        return NFIDENTID();
+        return NULL_OBJECT;
     }
 
     bool bExit = false;
     if (!m_pWorldGuildDataModule->ExitGuild(self, strName, bExit))
     {
-        return NFIDENTID();
+        return NULL_OBJECT;
     }
 
     if (bExit)
     {
-        return NFIDENTID();
+        return NULL_OBJECT;
     }
 
     return m_pWorldGuildDataModule->CreateGuild(self, strName, strRoleName, nLevel, nJob, nDonation, nVIP);
 }
 
-bool NFCWorldGuildModule::JoinGuild( const NFIDENTID& self, const NFIDENTID& xGuildID )
+bool NFCWorldGuildModule::JoinGuild(const NFGUID& self, const NFGUID& xGuildID)
 {
     NF_SHARE_PTR<NFIObject> pGuildObject = m_pWorldGuildDataModule->GetGuild(xGuildID);
     if (!pGuildObject.get())
@@ -82,7 +104,7 @@ bool NFCWorldGuildModule::JoinGuild( const NFIDENTID& self, const NFIDENTID& xGu
     }
 
     NFCDataList varList;
-    pMemberRecord->FindObject(NFMsg::GuildMemberList_GUID, self, varList);
+    pMemberRecord->FindObject(NFrame::Guild::GuildMemberList_GUID, self, varList);
     if (varList.GetCount() > 0)
     {
         return false;
@@ -106,12 +128,12 @@ bool NFCWorldGuildModule::JoinGuild( const NFIDENTID& self, const NFIDENTID& xGu
     int nOnLine = 0;
     int nPower = NFMsg::GUILD_POWER_TYPE_NORMAL;
 
-    const NFIDENTID& xPresident = pGuildObject->GetPropertyObject("PresidentID");
+    const NFGUID& xPresident = pGuildObject->GetPropertyObject("PresidentID");
     if (xPresident == self)
     {
         nPower = NFMsg::GUILD_POWER_TYPE_PRESIDENT;
     }
-    
+
     int nTitle = 0;
     int nOnlineGameID = 0;
 
@@ -124,13 +146,13 @@ bool NFCWorldGuildModule::JoinGuild( const NFIDENTID& self, const NFIDENTID& xGu
     {
         return false;
     }
-    
-    m_pKernelModule->SetPropertyInt(xGuildID, "GuildMemeberCount", nCount+1);
 
-	return true;
+    m_pKernelModule->SetPropertyInt(xGuildID, "GuildMemeberCount", nCount + 1);
+
+    return true;
 }
 
-bool NFCWorldGuildModule::LeaveGuild( const NFIDENTID& self, const NFIDENTID& xGuildID )
+bool NFCWorldGuildModule::LeaveGuild(const NFGUID& self, const NFGUID& xGuildID)
 {
     NF_SHARE_PTR<NFIObject> pGuildObject = m_pWorldGuildDataModule->GetGuild(xGuildID);
     if (!pGuildObject.get())
@@ -145,18 +167,18 @@ bool NFCWorldGuildModule::LeaveGuild( const NFIDENTID& self, const NFIDENTID& xG
     }
 
     NFCDataList varList;
-    pMemberRecord->FindObject(NFMsg::GuildMemberList_GUID, self, varList);
+    pMemberRecord->FindObject(NFrame::Guild::GuildMemberList_GUID, self, varList);
     if (varList.GetCount() == 0)
     {
         return false;
     }
 
     const int nRow = varList.Int(0);
-    
+
     return pMemberRecord->Remove(nRow);
 }
 
-bool NFCWorldGuildModule::UpGuildMmember( const NFIDENTID& self, const NFIDENTID& xGuildID, const NFIDENTID& xMmember )
+bool NFCWorldGuildModule::UpGuildMmember(const NFGUID& self, const NFGUID& xGuildID, const NFGUID& xMmember)
 {
     NF_SHARE_PTR<NFIObject> pGuildObject = m_pWorldGuildDataModule->GetGuild(xGuildID);
     if (!pGuildObject.get())
@@ -173,7 +195,7 @@ bool NFCWorldGuildModule::UpGuildMmember( const NFIDENTID& self, const NFIDENTID
     CheckPower(self, xGuildID, NFMsg::ReqAckOprGuildMember::EGAT_UP);
 
     NFCDataList varList;
-    pMemberRecord->FindObject(NFMsg::GuildMemberList_GUID, self, varList);
+    pMemberRecord->FindObject(NFrame::Guild::GuildMemberList_GUID, self, varList);
     if (varList.GetCount() == 0)
     {
         return false;
@@ -181,18 +203,18 @@ bool NFCWorldGuildModule::UpGuildMmember( const NFIDENTID& self, const NFIDENTID
 
     const int nRow = varList.Int(0);
 
-    const int nPower = pMemberRecord->GetInt(nRow, NFMsg::GuildMemberList_Power);
+    const int nPower = pMemberRecord->GetInt(nRow, NFrame::Guild::GuildMemberList_Power);
 
     if (nPower >= NFMsg::GUILD_POWER_TYPE_PRESIDENT)
     {
         return false;
     }
 
-    pMemberRecord->SetInt(nRow, NFMsg::GuildMemberList_Power, (nPower + 1)) ;
-	return true;
+    pMemberRecord->SetInt(nRow, NFrame::Guild::GuildMemberList_Power, (nPower + 1)) ;
+    return true;
 }
 
-bool NFCWorldGuildModule::DownGuildMmember( const NFIDENTID& self, const NFIDENTID& xGuildID, const NFIDENTID& xMmember )
+bool NFCWorldGuildModule::DownGuildMmember(const NFGUID& self, const NFGUID& xGuildID, const NFGUID& xMmember)
 {
     NF_SHARE_PTR<NFIObject> pGuildObject = m_pWorldGuildDataModule->GetGuild(xGuildID);
     if (!pGuildObject.get())
@@ -209,7 +231,7 @@ bool NFCWorldGuildModule::DownGuildMmember( const NFIDENTID& self, const NFIDENT
     CheckPower(self, xGuildID, NFMsg::ReqAckOprGuildMember::EGAT_DOWN);
 
     NFCDataList varList;
-    pMemberRecord->FindObject(NFMsg::GuildMemberList_GUID, self, varList);
+    pMemberRecord->FindObject(NFrame::Guild::GuildMemberList_GUID, self, varList);
     if (varList.GetCount() == 0)
     {
         return false;
@@ -217,17 +239,17 @@ bool NFCWorldGuildModule::DownGuildMmember( const NFIDENTID& self, const NFIDENT
 
     const int nRow = varList.Int(0);
 
-    const int nPower = pMemberRecord->GetInt(nRow, NFMsg::GuildMemberList_Power);
+    const int nPower = pMemberRecord->GetInt(nRow, NFrame::Guild::GuildMemberList_Power);
     if (nPower == 0)
     {
         return false;
     }
 
-    pMemberRecord->SetInt(nRow, NFMsg::GuildMemberList_Power, (nPower - 1));
+    pMemberRecord->SetInt(nRow, NFrame::Guild::GuildMemberList_Power, (nPower - 1));
     return true;
 }
 
-bool NFCWorldGuildModule::KickGuildMmember( const NFIDENTID& self, const NFIDENTID& xGuildID, const NFIDENTID& xMmember )
+bool NFCWorldGuildModule::KickGuildMmember(const NFGUID& self, const NFGUID& xGuildID, const NFGUID& xMmember)
 {
     NF_SHARE_PTR<NFIObject> pGuildObject = m_pWorldGuildDataModule->GetGuild(xGuildID);
     if (!pGuildObject.get())
@@ -249,7 +271,7 @@ bool NFCWorldGuildModule::KickGuildMmember( const NFIDENTID& self, const NFIDENT
     CheckPower(self, xGuildID, NFMsg::ReqAckOprGuildMember::EGAT_KICK);
 
     NFCDataList varList;
-    pMemberRecord->FindObject(NFMsg::GuildMemberList_GUID, self, varList);
+    pMemberRecord->FindObject(NFrame::Guild::GuildMemberList_GUID, self, varList);
     if (varList.GetCount() == 0)
     {
         return false;
@@ -261,24 +283,24 @@ bool NFCWorldGuildModule::KickGuildMmember( const NFIDENTID& self, const NFIDENT
     return true;
 }
 
-bool NFCWorldGuildModule::GetGuildBaseInfo( const NFIDENTID& self, const NFIDENTID& xGuildID )
+bool NFCWorldGuildModule::GetGuildBaseInfo(const NFGUID& self, const NFGUID& xGuildID)
 {
-	return true;
+    return true;
 }
 
-bool NFCWorldGuildModule::GetGuildMemberInfo( const NFIDENTID& self, const NFIDENTID& xGuildID )
+bool NFCWorldGuildModule::GetGuildMemberInfo(const NFGUID& self, const NFGUID& xGuildID)
 {
 
-	return true;
+    return true;
 }
 
-bool NFCWorldGuildModule::GetGuildMemberInfo( const NFIDENTID& self, const NFIDENTID& xGuildID, const NFIDENTID& xMmember )
+bool NFCWorldGuildModule::GetGuildMemberInfo(const NFGUID& self, const NFGUID& xGuildID, const NFGUID& xMmember)
 {
 
-	return false;
+    return false;
 }
 
-bool NFCWorldGuildModule::CheckPower( const NFIDENTID& self, const NFIDENTID& xGuildID, int nPowerType )
+bool NFCWorldGuildModule::CheckPower(const NFGUID& self, const NFGUID& xGuildID, int nPowerType)
 {
     NF_SHARE_PTR<NFIObject> pGuildObject = m_pWorldGuildDataModule->GetGuild(xGuildID);
     if (pGuildObject.get())
@@ -287,11 +309,11 @@ bool NFCWorldGuildModule::CheckPower( const NFIDENTID& self, const NFIDENTID& xG
         if (pMemberRecord.get())
         {
             NFCDataList varList;
-            pMemberRecord->FindObject(NFMsg::GuildMemberList_GUID, self, varList);
+            pMemberRecord->FindObject(NFrame::Guild::GuildMemberList_GUID, self, varList);
             if (varList.GetCount() == 1)
             {
                 const int nRow = varList.Int(0);
-                const int nPower = pMemberRecord->GetInt(nRow, NFMsg::GuildMemberList_Power); 
+                const int nPower = pMemberRecord->GetInt(nRow, NFrame::Guild::GuildMemberList_Power);
                 if (nPower >= NFMsg::GUILD_POWER_TYPE_PRESIDENT)
                 {
                     return true;
@@ -303,7 +325,7 @@ bool NFCWorldGuildModule::CheckPower( const NFIDENTID& self, const NFIDENTID& xG
     return false;
 }
 
-bool NFCWorldGuildModule::GetOnlineMember( const NFIDENTID& self, const NFIDENTID& xGuild, NFCDataList& varMemberList, NFCDataList& varGameList)
+bool NFCWorldGuildModule::GetOnlineMember(const NFGUID& self, const NFGUID& xGuild, NFCDataList& varMemberList, NFCDataList& varGameList)
 {
     NF_SHARE_PTR<NFIObject> pGuildObject = m_pWorldGuildDataModule->GetGuild(xGuild);
     if (!pGuildObject.get())
@@ -317,16 +339,16 @@ bool NFCWorldGuildModule::GetOnlineMember( const NFIDENTID& self, const NFIDENTI
         return false;
     }
 
-    for (int i = 0; i< pMemberRecord->GetRows(); i++)
+    for (int i = 0; i < pMemberRecord->GetRows(); i++)
     {
         if (!pMemberRecord->IsUsed(i))
         {
             continue;
         }
 
-        const NFINT64 nOnline = pMemberRecord->GetInt(i, NFMsg::GuildMemberList_Online);
-        const NFINT64 nGameID = pMemberRecord->GetInt(i, NFMsg::GuildMemberList_GameID);
-        const NFIDENTID& xID = pMemberRecord->GetObject(i, NFMsg::GuildMemberList_GUID);
+        const NFINT64 nOnline = pMemberRecord->GetInt(i, NFrame::Guild::GuildMemberList_Online);
+        const NFINT64 nGameID = pMemberRecord->GetInt(i, NFrame::Guild::GuildMemberList_GameID);
+        const NFGUID& xID = pMemberRecord->GetObject(i, NFrame::Guild::GuildMemberList_GUID);
         if (nOnline > 0 && !xID.IsNull())
         {
 
@@ -338,7 +360,7 @@ bool NFCWorldGuildModule::GetOnlineMember( const NFIDENTID& self, const NFIDENTI
     return true;
 }
 
-bool NFCWorldGuildModule::MemberOnline( const NFIDENTID& self, const NFIDENTID& xGuild , const int& nGameID)
+bool NFCWorldGuildModule::MemberOnline(const NFGUID& self, const NFGUID& xGuild , const int& nGameID)
 {
     NF_SHARE_PTR<NFIObject> pGuildObject = m_pWorldGuildDataModule->GetGuild(xGuild);
     if (!pGuildObject.get())
@@ -353,21 +375,21 @@ bool NFCWorldGuildModule::MemberOnline( const NFIDENTID& self, const NFIDENTID& 
     }
 
     NFCDataList varList;
-    pMemberRecord->FindObject(NFMsg::GuildMemberList_GUID, self, varList);
+    pMemberRecord->FindObject(NFrame::Guild::GuildMemberList_GUID, self, varList);
     if (varList.GetCount() <=  0)
     {
         return false;
     }
 
     const int nRow = varList.Int(0);
-    pMemberRecord->SetInt(nRow, NFMsg::GuildMemberList_GameID, nGameID);
-    
-    pMemberRecord->SetInt(nRow, NFMsg::GuildMemberList_Online, 1);
+    pMemberRecord->SetInt(nRow, NFrame::Guild::GuildMemberList_GameID, nGameID);
+
+    pMemberRecord->SetInt(nRow, NFrame::Guild::GuildMemberList_Online, 1);
 
     return true;
 }
 
-bool NFCWorldGuildModule::MemberOffeline( const NFIDENTID& self, const NFIDENTID& xGuild )
+bool NFCWorldGuildModule::MemberOffeline(const NFGUID& self, const NFGUID& xGuild)
 {
     NF_SHARE_PTR<NFIObject> pGuildObject = m_pWorldGuildDataModule->GetGuild(xGuild);
     if (!pGuildObject.get())
@@ -383,14 +405,150 @@ bool NFCWorldGuildModule::MemberOffeline( const NFIDENTID& self, const NFIDENTID
     }
 
     NFCDataList varList;
-    pMemberRecord->FindObject(NFMsg::GuildMemberList_GUID, self, varList);
+    pMemberRecord->FindObject(NFrame::Guild::GuildMemberList_GUID, self, varList);
     if (varList.GetCount() <= 0)
     {
         return false;
     }
 
     const int nRow = varList.Int(0);
-    pMemberRecord->SetInt(nRow, NFMsg::GuildMemberList_Online, 0);
-    pMemberRecord->SetInt(nRow, NFMsg::GuildMemberList_GameID, 0);
+    pMemberRecord->SetInt(nRow, NFrame::Guild::GuildMemberList_Online, 0);
+    pMemberRecord->SetInt(nRow, NFrame::Guild::GuildMemberList_GameID, 0);
     return true;
+}
+
+
+void NFCWorldGuildModule::OnCreateGuildProcess(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen)
+{
+    CLIENT_MSG_PROCESS_NO_OBJECT(nSockIndex, nMsgID, msg, nLen, NFMsg::ReqAckCreateGuild);
+
+    std::string strRoleName ;
+    int nLevel = 0;
+    int nJob = 0;
+    int nDonation = 0;
+    int nVIP = 0;
+
+    m_pWorldGuildDataModule->GetPlayerInfo(nPlayerID, strRoleName, nLevel, nJob, nDonation, nVIP);
+    NFGUID xGuild = CreateGuild(nPlayerID, xMsg.guild_name(), strRoleName, nLevel, nJob, nDonation, nVIP);
+
+    if (!xGuild.IsNull())
+    {
+        NFMsg::ReqAckCreateGuild xAck;
+        *xAck.mutable_guild_id() = NFINetModule::NFToPB(xGuild);
+        xAck.set_guild_name(xMsg.guild_name());
+
+        m_pWorldNet_ServerModule->SendMsgPB(NFMsg::EGMI_ACK_CREATE_GUILD, xAck, nSockIndex, nPlayerID);
+    }
+    else
+    {
+        NFMsg::ReqAckCreateGuild xAck;
+        *xAck.mutable_guild_id() = NFINetModule::NFToPB(xGuild);
+        xAck.set_guild_name("");
+
+        m_pWorldNet_ServerModule->SendMsgPB(NFMsg::EGMI_ACK_CREATE_GUILD, xAck, nSockIndex, nPlayerID);
+    }
+}
+
+void NFCWorldGuildModule::OnJoinGuildProcess(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen)
+{
+    CLIENT_MSG_PROCESS_NO_OBJECT(nSockIndex, nMsgID, msg, nLen, NFMsg::ReqAckJoinGuild)
+
+    if (JoinGuild(nPlayerID, NFINetModule::PBToNF(xMsg.guild_id())))
+    {
+        NFMsg::ReqAckJoinGuild xAck;
+        *xAck.mutable_guild_id() = xMsg.guild_id();
+
+        NFGUID xGuild = NFINetModule::PBToNF(xMsg.guild_id());
+        const std::string& strName = m_pKernelModule->GetPropertyString(xGuild, "Name");
+        xAck.set_guild_name(strName);
+
+        m_pWorldNet_ServerModule->SendMsgPB(NFMsg::EGMI_ACK_JOIN_GUILD, xAck, nSockIndex, nPlayerID);
+
+        int nGameID = 0;
+        if (m_pWorldGuildDataModule->GetPlayerGameID(nPlayerID, nGameID))
+        {
+            MemberOnline(nPlayerID, xGuild, nGameID);
+        }
+    }
+    else
+    {
+        NFMsg::ReqAckJoinGuild xAck;
+        *xAck.mutable_guild_id() = NFINetModule::NFToPB(NFGUID());
+        xAck.set_guild_name("");
+
+        m_pWorldNet_ServerModule->SendMsgPB(NFMsg::EGMI_ACK_JOIN_GUILD, xAck, nSockIndex, nPlayerID);
+    }
+}
+
+void NFCWorldGuildModule::OnLeaveGuildProcess(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen)
+{
+    CLIENT_MSG_PROCESS_NO_OBJECT(nSockIndex, nMsgID, msg, nLen, NFMsg::ReqAckLeaveGuild)
+
+    if (LeaveGuild(nPlayerID, NFINetModule::PBToNF(xMsg.guild_id())))
+    {
+
+        NFMsg::ReqAckLeaveGuild xAck;
+        *xAck.mutable_guild_id() = xMsg.guild_id();
+        xAck.set_guild_name(xMsg.guild_name());
+
+        m_pWorldNet_ServerModule->SendMsgPB(NFMsg::EGMI_ACK_LEAVE_GUILD, xAck, nSockIndex, nPlayerID);
+    }
+    else
+    {
+        NFMsg::ReqAckLeaveGuild xAck;
+        *xAck.mutable_guild_id() = NFINetModule::NFToPB(NFGUID());
+        xAck.set_guild_name("");
+
+        m_pWorldNet_ServerModule->SendMsgPB(NFMsg::EGMI_ACK_LEAVE_GUILD, xAck, nSockIndex, nPlayerID);
+    }
+}
+
+void NFCWorldGuildModule::OnOprGuildMemberProcess(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen)
+{
+    CLIENT_MSG_PROCESS_NO_OBJECT(nSockIndex, nMsgID, msg, nLen, NFMsg::ReqAckOprGuildMember)
+
+    NFMsg::ReqAckOprGuildMember::EGGuildMemberOprType eOprType = xMsg.type();
+    switch (eOprType)
+    {
+        case NFMsg::ReqAckOprGuildMember::EGGuildMemberOprType::ReqAckOprGuildMember_EGGuildMemberOprType_EGAT_UP:
+            UpGuildMmember(nPlayerID, NFINetModule::PBToNF(xMsg.guild_id()), NFINetModule::PBToNF(xMsg.member_id()));
+            break;
+        case NFMsg::ReqAckOprGuildMember::EGGuildMemberOprType::ReqAckOprGuildMember_EGGuildMemberOprType_EGAT_DOWN:
+            DownGuildMmember(nPlayerID, NFINetModule::PBToNF(xMsg.guild_id()), NFINetModule::PBToNF(xMsg.member_id()));
+            break;
+        case NFMsg::ReqAckOprGuildMember::EGGuildMemberOprType::ReqAckOprGuildMember_EGGuildMemberOprType_EGAT_KICK:
+            KickGuildMmember(nPlayerID, NFINetModule::PBToNF(xMsg.guild_id()), NFINetModule::PBToNF(xMsg.member_id()));
+            break;
+        default:
+            break;
+    }
+
+}
+
+void NFCWorldGuildModule::OnSearchGuildProcess(const int nSockIndex, const int nMsgID, const char* msg, const uint32_t nLen)
+{
+    CLIENT_MSG_PROCESS_NO_OBJECT(nSockIndex, nMsgID, msg, nLen, NFMsg::ReqSearchGuild);
+
+    std::vector<NFIWorldGuildDataModule::SearchGuildObject> xList;
+    m_pWorldGuildDataModule->SearchGuild(nPlayerID, xMsg.guild_name(), xList);
+
+    NFMsg::AckSearchGuild xAckMsg;
+    for (int i = 0; i < xList.size(); ++i)
+    {
+        NFMsg::AckSearchGuild::SearchGuildObject* pData = xAckMsg.add_guild_list();
+        if (pData)
+        {
+            const NFIWorldGuildDataModule::SearchGuildObject& xGuild = xList[i];
+            *pData->mutable_guild_id() = NFINetModule::NFToPB(xGuild.mxGuildID);
+            pData->set_guild_name(xGuild.mstrGuildName);
+            pData->set_guild_icon(xGuild.mnGuildIcon);
+
+            pData->set_guild_member_count(xGuild.mnGuildMemberCount);
+            pData->set_guild_member_max_count(xGuild.mnGuildMemberMaxCount);
+            pData->set_guild_honor(xGuild.mnGuildHonor);
+            pData->set_guild_rank(xGuild.mnGuildRank);
+        }
+    }
+
+    m_pWorldNet_ServerModule->SendMsgPB(NFMsg::EGMI_ACK_SEARCH_GUILD, xAckMsg, nSockIndex, nPlayerID);
 }

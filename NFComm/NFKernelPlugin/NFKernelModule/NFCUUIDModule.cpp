@@ -1,3 +1,11 @@
+// -------------------------------------------------------------------------
+//    @FileName         :    NFCUUIDModule.cpp
+//    @Author           :    eliteYang
+//    @Date             :    2014-4-9
+//    @Module           :    NFCUUIDModule
+//
+// -------------------------------------------------------------------------
+
 #include "NFCUUIDModule.h"
 #include "NFComm/NFPluginModule/NFIKernelModule.h"
 #include "NFComm/NFPluginModule/NFIPluginManager.h"
@@ -20,7 +28,7 @@ uint64_t get_time()
 #ifndef _MSC_VER
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    int time = tv.tv_usec;
+    uint64_t time = tv.tv_usec;
     time /= 1000;
     time += (tv.tv_sec * 1000);
     return time;
@@ -64,12 +72,15 @@ public:
         uint64_t time = UUIDModule::get_time();
 
         // 保留后48位时间
-        value = time << 16;
+        //value = time << 16;
+        value = time * 1000000;
 
         // 最后16位是sequenceID
-        value |= sequence_++;
+        //value |= sequence_++;
+        value += sequence_++;
 
-        if (sequence_ == 0x7FFF)
+        //if (sequence_ == 0x7FFF)
+        if (sequence_ == 999999)
         {
             sequence_ = 0;
         }
@@ -87,7 +98,7 @@ private:
 NFCUUIDModule::NFCUUIDModule(NFIPluginManager* p)
 {
     mnIdent = 0;
-	m_pKernelModule = NULL;
+    m_pKernelModule = NULL;
     pPluginManager = p;
 }
 
@@ -106,17 +117,15 @@ bool NFCUUIDModule::Shut()
 
 bool NFCUUIDModule::BeforeShut()
 {
-    if (NULL != m_pUUID)
-    {
-        delete m_pUUID;
-        m_pUUID = NULL;
-    }
+    delete m_pUUID;
+    m_pUUID = NULL;
+
     return true;
 }
 
 bool NFCUUIDModule::AfterInit()
 {
-    m_pKernelModule = dynamic_cast<NFIKernelModule*>(pPluginManager->FindModule("NFCKernelModule"));
+    m_pKernelModule = pPluginManager->FindModule<NFIKernelModule>("NFCKernelModule");
     assert(NULL != m_pKernelModule);
 
     // 初始化uuid
@@ -127,17 +136,17 @@ bool NFCUUIDModule::AfterInit()
     return true;
 }
 
-bool NFCUUIDModule::Execute(const float fLasFrametime, const float fStartedTime)
+bool NFCUUIDModule::Execute()
 {
     return true;
 }
 
-NFIDENTID NFCUUIDModule::CreateGUID()
+NFGUID NFCUUIDModule::CreateGUID()
 {
-	NFIDENTID xID;
-	xID.nHead64 = GetIdentID();
-	xID.nData64 = m_pUUID->generate();
-	
+    NFGUID xID;
+    xID.nHead64 = GetIdentID();
+    xID.nData64 = m_pUUID->generate();
+
     return xID;
 }
 
@@ -146,7 +155,7 @@ NFINT64 NFCUUIDModule::GetIdentID()
     return mnIdent;
 }
 
-void NFCUUIDModule::SetIdentID( NFINT64 nID )
+void NFCUUIDModule::SetIdentID(NFINT64 nID)
 {
     mnIdent = nID;
 }

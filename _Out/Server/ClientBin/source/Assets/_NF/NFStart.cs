@@ -17,9 +17,6 @@ using ProtoBuf;
 public class NFStart : MonoBehaviour
 {
     //看开启多人模式还是单人模式
-
-
-
     NFConfig mConfig = null;
     NFNet mxNetFocus = null;
     string strTargetIP = "";
@@ -94,8 +91,9 @@ public class NFStart : MonoBehaviour
         mConfig = new NFConfig();
         mConfig.Load();
         mConfig.GetSelectServer(ref strTargetIP, ref nPort);
+        String strConfigPath = mConfig.GetConfigPath();
 
-        NFCElementManager.Instance.Load();
+        NFCElementManager.Instance.Load(strConfigPath);
         NFCRenderInterface.Instance.Init();
 
     }
@@ -183,7 +181,6 @@ public class NFStart : MonoBehaviour
                         NFStart.Instance.SetFocusNet(xNet);
                     }
                     break;
-                case NFNet.PLAYER_STATE.E_HAS_PLAYER_SELECT_WORLD:
                 case NFNet.PLAYER_STATE.E_HAS_PLAYER_GATE:
                     {
                         NFStart.Instance.GetFocusNet().mxSendLogic.RequireVerifyWorldKey(NFStart.Instance.GetFocusNet().strAccount, NFStart.Instance.GetFocusNet().strKey);

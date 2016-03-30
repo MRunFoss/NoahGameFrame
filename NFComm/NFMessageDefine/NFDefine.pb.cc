@@ -22,10 +22,16 @@ namespace {
 
 const ::google::protobuf::EnumDescriptor* EGameEventCode_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* EGameMsgID_descriptor_ = NULL;
-const ::google::protobuf::EnumDescriptor* EAwardType_descriptor_ = NULL;
+const ::google::protobuf::EnumDescriptor* EItemType_descriptor_ = NULL;
+const ::google::protobuf::EnumDescriptor* EGameEquipSubType_descriptor_ = NULL;
+const ::google::protobuf::EnumDescriptor* EGameElementType_descriptor_ = NULL;
+const ::google::protobuf::EnumDescriptor* EGameItemSubType_descriptor_ = NULL;
+const ::google::protobuf::EnumDescriptor* EGameItemExpiredType_descriptor_ = NULL;
+const ::google::protobuf::EnumDescriptor* EDrawDropItemState_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* EGuildPowerType_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* ETaskState_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* ETaskType_descriptor_ = NULL;
+const ::google::protobuf::EnumDescriptor* EBattleType_descriptor_ = NULL;
 
 }  // namespace
 
@@ -38,10 +44,16 @@ void protobuf_AssignDesc_NFDefine_2eproto() {
   GOOGLE_CHECK(file != NULL);
   EGameEventCode_descriptor_ = file->enum_type(0);
   EGameMsgID_descriptor_ = file->enum_type(1);
-  EAwardType_descriptor_ = file->enum_type(2);
-  EGuildPowerType_descriptor_ = file->enum_type(3);
-  ETaskState_descriptor_ = file->enum_type(4);
-  ETaskType_descriptor_ = file->enum_type(5);
+  EItemType_descriptor_ = file->enum_type(2);
+  EGameEquipSubType_descriptor_ = file->enum_type(3);
+  EGameElementType_descriptor_ = file->enum_type(4);
+  EGameItemSubType_descriptor_ = file->enum_type(5);
+  EGameItemExpiredType_descriptor_ = file->enum_type(6);
+  EDrawDropItemState_descriptor_ = file->enum_type(7);
+  EGuildPowerType_descriptor_ = file->enum_type(8);
+  ETaskState_descriptor_ = file->enum_type(9);
+  ETaskType_descriptor_ = file->enum_type(10);
+  EBattleType_descriptor_ = file->enum_type(11);
 }
 
 namespace {
@@ -69,8 +81,8 @@ void protobuf_AddDesc_NFDefine_2eproto() {
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\016NFDefine.proto\022\005NFMsg*\266\n\n\016EGameEventCo"
-    "de\022\025\n\021EGEC_UNKOWN_ERROR\020\000\022\020\n\014EGEC_SUCCES"
-    "S\020\001\022\026\n\022EGEC_ACCOUNT_EXIST\020\002\022\033\n\027EGEC_ACCO"
+    "de\022\020\n\014EGEC_SUCCESS\020\000\022\025\n\021EGEC_UNKOWN_ERRO"
+    "R\020\001\022\026\n\022EGEC_ACCOUNT_EXIST\020\002\022\033\n\027EGEC_ACCO"
     "UNTPWD_INVALID\020\003\022\026\n\022EGEC_ACCOUNT_USING\020\004"
     "\022\027\n\023EGEC_ACCOUNT_LOCKED\020\005\022\030\n\024EGEC_ACCOUN"
     "T_SUCCESS\020\006\022\033\n\027EGEC_VERIFY_KEY_SUCCESS\020\007"
@@ -102,7 +114,7 @@ void protobuf_AddDesc_NFDefine_2eproto() {
     "\027EGEC_ENTER_GAME_SUCCESS\020\220\001\022\036\n\031EGEC_CREA"
     "TE_GUILD_SUCCESS\020\310\001\022\034\n\027EGEC_JOIN_GUILD_S"
     "UCCESS\020\311\001\022\035\n\030EGEC_LEAVE_GUILD_SUCCESS\020\312\001"
-    "*\250\030\n\nEGameMsgID\022\017\n\013EGMI_UNKNOW\020\000\022\025\n\021EGMI"
+    "*\343&\n\nEGameMsgID\022\017\n\013EGMI_UNKNOW\020\000\022\025\n\021EGMI"
     "_EVENT_RESULT\020\001\022\030\n\024EGMI_EVENT_TRANSPOND\020"
     "\002\022\025\n\021EGMI_CLOSE_SOCKET\020\003\022\035\n\031EGMI_MTL_WOR"
     "LD_REGISTERED\020\n\022\037\n\033EGMI_MTL_WORLD_UNREGI"
@@ -160,40 +172,117 @@ void protobuf_AddDesc_NFDefine_2eproto() {
     "_REQ_ACCEPT_TASK\020\200\002\022\034\n\027EGMI_REQ_COMPELET"
     "E_TASK\020\201\002\022\026\n\021EGMI_REQ_JOIN_PVP\020\204\002\022\026\n\021EGM"
     "I_REQ_EXIT_PVP\020\205\002\022\027\n\022EGMT_ACK_START_PVP\020"
-    "\206\002\022\033\n\026EGMI_ACK_ONLINE_NOTIFY\020\242\002\022\034\n\027EGMI_"
-    "ACK_OFFLINE_NOTIFY\020\243\002\022\032\n\025EGMI_REQ_CREATE"
-    "_GUILD\020\254\002\022\032\n\025EGMI_ACK_CREATE_GUILD\020\255\002\022\030\n"
-    "\023EGMI_REQ_JOIN_GUILD\020\256\002\022\030\n\023EGMI_ACK_JOIN"
-    "_GUILD\020\257\002\022\031\n\024EGMI_REQ_LEAVE_GUILD\020\260\002\022\031\n\024"
-    "EGMI_ACK_LEAVE_GUILD\020\261\002\022\027\n\022EGMI_REQ_OPR_"
-    "GUILD\020\262\002\022\027\n\022EGMI_ACK_OPR_GUILD\020\263\002\022\032\n\025EGM"
-    "I_REQ_SEARCH_GUILD\020\264\002\022\032\n\025EGMI_ACK_SEARCH"
-    "_GUILD\020\265\002\022\036\n\031EGMI_REQ_CMD_PROPERTY_INT\020\350"
-    "\007\022\036\n\031EGMI_REQ_CMD_PROPERTY_STR\020\351\007\022!\n\034EGM"
-    "I_REQ_CMD_PROPERTY_OBJECT\020\352\007\022 \n\033EGMI_REQ"
-    "_CMD_PROPERTY_FLOAT\020\353\007\022\034\n\027EGMI_REQ_CMD_R"
-    "ECORD_INT\020\354\007\022\034\n\027EGMI_REQ_CMD_RECORD_STR\020"
-    "\355\007\022\037\n\032EGMI_REQ_CMD_RECORD_OBJECT\020\356\007\022\036\n\031E"
-    "GMI_REQ_CMD_RECORD_FLOAT\020\357\007\022\033\n\026EGMI_REQ_"
-    "BUY_FORM_SHOP\020\220N\022\033\n\026EGMI_ACK_BUY_FORM_SH"
-    "OP\020\221N\022\037\n\032EGMI_REQ_MOVE_BUILD_OBJECT\020\222N\022\037"
-    "\n\032EGMI_ACK_MOVE_BUILD_OBJECT\020\223N\022\032\n\025EGMI_"
-    "REQ_UP_BUILD_LVL\020\365N\022\031\n\024EGMI_REQ_CREATE_I"
-    "TEM\020\366N\022\033\n\026EGMI_REQ_BUILD_OPERATE\020\367N*8\n\nE"
-    "AwardType\022\025\n\021AWARD_TYPE_NORMAL\020\000\022\023\n\017AWAR"
-    "D_TYPE_HERO\020\001*s\n\017EGuildPowerType\022\033\n\027GUIL"
-    "D_POWER_TYPE_NORMAL\020\000\022#\n\037GUILD_POWER_TYP"
-    "E_VICE_PRESIDENT\020\001\022\036\n\032GUILD_POWER_TYPE_P"
-    "RESIDENT\020\002*V\n\nETaskState\022\023\n\017TASK_IN_PROC"
-    "ESS\020\000\022\r\n\tTASK_DONE\020\001\022\023\n\017TASK_DRAW_AWARD\020"
-    "\002\022\017\n\013TASK_FINISH\020\003*\251\002\n\tETaskType\022 \n\034TASK"
-    "_LEVEL_UPDATE_SOME_LEVEL\020\000\022\024\n\020TASK_PASS_"
-    "ECTYPE\020\001\022\032\n\026TASK_PASS_ECTYPE_COUNT\020\002\022$\n "
-    "TASK_PASS_SOME_TYPE_ECTYPE_COUNT\020\003\022\033\n\027TA"
-    "SK_UPDATE_SKILL_COUNT\020\004\022\026\n\022TASK_CONSUME_"
-    "MONEY\020\005\022\030\n\024TASK_CONSUME_DIAMOND\020\006\022\024\n\020TAS"
-    "K_ARENA_COUNT\020\007\022\033\n\027TASK_KILL_MONSTER_COU"
-    "NT\020\010\022 \n\034TASK_KILL_SOME_MONSTER_COUNT\020\t", 5038);
+    "\206\002\022\034\n\027EGMI_REQ_SEARCH_OPPNENT\020\230\002\022\034\n\027EGMI"
+    "_ACK_SEARCH_OPPNENT\020\231\002\022\033\n\026EGMT_REQ_START"
+    "_OPPNENT\020\232\002\022\033\n\026EGMT_ACK_START_OPPNENT\020\233\002"
+    "\022\033\n\026EGMI_ACK_ONLINE_NOTIFY\020\242\002\022\034\n\027EGMI_AC"
+    "K_OFFLINE_NOTIFY\020\243\002\022\032\n\025EGMI_REQ_CREATE_G"
+    "UILD\020\254\002\022\032\n\025EGMI_ACK_CREATE_GUILD\020\255\002\022\030\n\023E"
+    "GMI_REQ_JOIN_GUILD\020\256\002\022\030\n\023EGMI_ACK_JOIN_G"
+    "UILD\020\257\002\022\031\n\024EGMI_REQ_LEAVE_GUILD\020\260\002\022\031\n\024EG"
+    "MI_ACK_LEAVE_GUILD\020\261\002\022\027\n\022EGMI_REQ_OPR_GU"
+    "ILD\020\262\002\022\027\n\022EGMI_ACK_OPR_GUILD\020\263\002\022\032\n\025EGMI_"
+    "REQ_SEARCH_GUILD\020\264\002\022\032\n\025EGMI_ACK_SEARCH_G"
+    "UILD\020\265\002\022\033\n\026EGMI_REQ_OPR_GUILDINFO\020\266\002\022\033\n\026"
+    "EGMI_ACK_OPR_GUILDINFO\020\267\002\022\035\n\030EGMI_REQ_GU"
+    "ILDECTYPEINFO\020\270\002\022\035\n\030EGMI_ACK_GUILDECTYPE"
+    "INFO\020\271\002\022\035\n\030EGMI_SET_GUILDECTYPEINFO\020\272\002\022\036"
+    "\n\031EGEC_REQ_CREATE_CHATGROUP\020\220\003\022\036\n\031EGEC_A"
+    "CK_CREATE_CHATGROUP\020\221\003\022\034\n\027EGEC_REQ_JOIN_"
+    "CHATGROUP\020\222\003\022\034\n\027EGEC_ACK_JOIN_CHATGROUP\020"
+    "\223\003\022\035\n\030EGEC_REQ_LEAVE_CHATGROUP\020\224\003\022\035\n\030EGE"
+    "C_ACK_LEAVE_CHATGROUP\020\225\003\022$\n\037EGEC_REQ_SUB"
+    "SCRIPTION_CHATGROUP\020\226\003\022*\n%EGEC_REQ_CANCE"
+    "LSUBSCRIPTION_CHATGROUP\020\227\003\022\036\n\031EGEC_REQ_I"
+    "NVITE_CHATGROUP\020\230\003\022\036\n\031EGEC_ACK_INVITE_CH"
+    "ATGROUP\020\231\003\022\034\n\027EGEC_REQ_KICK_CHATGROUP\020\232\003"
+    "\022\034\n\027EGEC_ACK_KICK_CHATGROUP\020\233\003\022\037\n\032EGEC_R"
+    "EQ_CHATGROUP_TO_TEAM\020\302\003\022\037\n\032EGEC_ACK_CHAT"
+    "GROUP_TO_TEAM\020\303\003\022%\n EGEC_REQ_INTENSIFYLE"
+    "VEL_TO_EQUIP\020\364\003\022%\n EGEC_ACK_INTENSIFYLEV"
+    "EL_TO_EQUIP\020\365\003\022\033\n\026EGEC_REQ_HOLE_TO_EQUIP"
+    "\020\366\003\022\033\n\026EGEC_ACK_HOLE_TO_EQUIP\020\367\003\022!\n\034EGEC"
+    "_REQ_INLAYSTONE_TO_EQUIP\020\370\003\022!\n\034EGEC_ACK_"
+    "INLAYSTONE_TO_EQUIP\020\371\003\022#\n\036EGEC_REQ_ELEME"
+    "NTLEVEL_TO_EQUIP\020\372\003\022#\n\036EGEC_ACK_ELEMENTL"
+    "EVEL_TO_EQUIP\020\373\003\022\034\n\027EGEC_REQ_SET_FIGHT_H"
+    "ERO\020\374\003\022\024\n\017EGEC_WEAR_EQUIP\020\375\003\022\027\n\022EGEC_TAK"
+    "EOFF_EQUIP\020\376\003\022\032\n\025EGEC_REQ_MINING_TITLE\020\330"
+    "\004\022\027\n\022EGEC_REQ_SEND_MAIL\020\274\005\022\027\n\022EGEC_REQ_D"
+    "RAW_MAIL\020\275\005\022\031\n\024EGEC_REQ_DELETE_MAIL\020\276\005\022 "
+    "\n\033EGMI_ACK_CLONE_OBJECT_ENTRY\020\240\006\022 \n\033EGMI"
+    "_ACK_CLONE_OBJECT_LEAVE\020\241\006\022)\n$EGMI_ACK_C"
+    "LONE_OBJECT_PROPERTY_ENTRY\020\242\006\022\'\n\"EGMI_AC"
+    "K_CLONE_OBJECT_RECORD_ENTRY\020\243\006\022 \n\033EGMI_A"
+    "CK_CLONE_PROPERTY_INT\020\252\006\022\"\n\035EGMI_ACK_CLO"
+    "NE_PROPERTY_FLOAT\020\253\006\022#\n\036EGMI_ACK_CLONE_P"
+    "ROPERTY_STRING\020\254\006\022#\n\036EGMI_ACK_CLONE_PROP"
+    "ERTY_DOUBLE\020\255\006\022#\n\036EGMI_ACK_CLONE_PROPERT"
+    "Y_OBJECT\020\256\006\022\033\n\026EGMI_ACK_CLONE_ADD_ROW\020\264\006"
+    "\022\036\n\031EGMI_ACK_CLONE_REMOVE_ROW\020\265\006\022\034\n\027EGMI"
+    "_ACK_CLONE_SWAP_ROW\020\266\006\022\036\n\031EGMI_ACK_CLONE"
+    "_RECORD_INT\020\267\006\022 \n\033EGMI_ACK_CLONE_RECORD_"
+    "FLOAT\020\270\006\022!\n\034EGMI_ACK_CLONE_RECORD_DOUBLE"
+    "\020\271\006\022!\n\034EGMI_ACK_CLONE_RECORD_STRING\020\272\006\022!"
+    "\n\034EGMI_ACK_CLONE_RECORD_OBJECT\020\273\006\022 \n\033EGM"
+    "I_ACK_CLONE_RECORD_CLEAR\020\274\006\022\037\n\032EGMI_ACK_"
+    "CLONE_RECORD_SORT\020\275\006\022\036\n\031EGMI_REQ_CMD_PRO"
+    "PERTY_INT\020\350\007\022\036\n\031EGMI_REQ_CMD_PROPERTY_ST"
+    "R\020\351\007\022!\n\034EGMI_REQ_CMD_PROPERTY_OBJECT\020\352\007\022"
+    " \n\033EGMI_REQ_CMD_PROPERTY_FLOAT\020\353\007\022\034\n\027EGM"
+    "I_REQ_CMD_RECORD_INT\020\354\007\022\034\n\027EGMI_REQ_CMD_"
+    "RECORD_STR\020\355\007\022\037\n\032EGMI_REQ_CMD_RECORD_OBJ"
+    "ECT\020\356\007\022\036\n\031EGMI_REQ_CMD_RECORD_FLOAT\020\357\007\022\033"
+    "\n\026EGMI_REQ_BUY_FORM_SHOP\020\220N\022\033\n\026EGMI_ACK_"
+    "BUY_FORM_SHOP\020\221N\022\037\n\032EGMI_REQ_MOVE_BUILD_"
+    "OBJECT\020\222N\022\037\n\032EGMI_ACK_MOVE_BUILD_OBJECT\020"
+    "\223N\022\032\n\025EGMI_REQ_UP_BUILD_LVL\020\365N\022\031\n\024EGMI_R"
+    "EQ_CREATE_ITEM\020\366N\022\033\n\026EGMI_REQ_BUILD_OPER"
+    "ATE\020\367N*\331\001\n\tEItemType\022\016\n\nEIT_NORMAL\020\000\022\r\n\t"
+    "EIT_EQUIP\020\001\022\016\n\nEIT_BOUNTY\020\002\022\021\n\rEIT_HERO_"
+    "CARD\020\003\022\022\n\016EIT_HERO_STONE\020\004\022\030\n\024EIT_STRENG"
+    "THEN_STONE\020\005\022\032\n\026EIT_DEMONIZATION_STONE\020\006"
+    "\022\021\n\rEIT_GEM_STONE\020\007\022\020\n\014EIT_CURRENCY\020\010\022\014\n"
+    "\010EIT_WOOD\020d\022\r\n\tEIT_STONE\020e*\350\002\n\021EGameEqui"
+    "pSubType\022\024\n\020EQUIPTYPE_WEAPON\020\000\022\023\n\017EQUIPT"
+    "YPE_ARMOR\020\001\022\026\n\022EQUIPTYPE_NECKLACE\020\002\022\022\n\016E"
+    "QUIPTYPE_RING\020\003\022\026\n\022EQUIPTYPE_EARRINGS\020\004\022"
+    "\023\n\017EQUIPTYPE_BADGE\020\005\022\024\n\020EQUIPTYPE_HELMET"
+    "\020\006\022\023\n\017EQUIPTYPE_SHAWL\020\007\022\023\n\017EQUIPTYPE_GLO"
+    "VE\020\010\022\023\n\017EQUIPTYPE_WRIST\020\t\022\022\n\016EQUIPTYPE_B"
+    "ELT\020\n\022\022\n\016EQUIPTYPE_PANT\020\013\022\022\n\016EQUIPTYPE_B"
+    "OOT\020\014\022\022\n\016EQUIPTYPE_WING\020\r\022\023\n\017EQUIPTYPE_C"
+    "LOAK\020\016\022\025\n\021EQUIPTYPE_FASHION\020\017*\211\001\n\020EGameE"
+    "lementType\022\025\n\021EELEMENTTYPE_WIND\020\000\022\025\n\021EEL"
+    "EMENTTYPE_FIRE\020\001\022\030\n\024EELEMENTTYPE_THUNDER"
+    "\020\002\022\025\n\021EELEMENTTYPE_SOIL\020\003\022\026\n\022EELEMENTTYP"
+    "E_WATER\020\004*\241\002\n\020EGameItemSubType\022\022\n\016EGIT_I"
+    "TEM_NONE\020\000\022\033\n\027EGIT_ITEM_PROPERTY_CARD\020\001\022"
+    "\035\n\031EGIT_ITEM_PVP_ATTACK_CARD\020\002\022\036\n\032EGIT_I"
+    "TEM_PVP_DEFENSE_CARD\020\003\022\030\n\024EGIT_ITEM_SKIL"
+    "L_CARD\020\004\022\036\n\032EGIT_ITEM_GUILD_SKILL_CARD\020\005"
+    "\022\033\n\027EGIT_ITEM_GUILD_DIAMOND\020\006\022\026\n\022EGIT_IT"
+    "EM_POSITION\020\007\022\030\n\024EGIT_ITEM_WORLD_HORN\020\010\022"
+    "\024\n\020EGIT_ITEM_REBORN\020\t*e\n\024EGameItemExpire"
+    "dType\022\016\n\nEGIET_NONE\020\000\022\023\n\017EGIET_USE_TIMES"
+    "\020\001\022\023\n\017EGIET_REAL_TIME\020\002\022\023\n\017EGIET_END_IND"
+    "EX\020\003*Y\n\022EDrawDropItemState\022\025\n\021E_DRAW_STA"
+    "TE_NONE\020\000\022\025\n\021E_DRAW_STATE_GAIN\020\001\022\025\n\021E_DR"
+    "AW_STATE_RECV\020\002*s\n\017EGuildPowerType\022\033\n\027GU"
+    "ILD_POWER_TYPE_NORMAL\020\000\022#\n\037GUILD_POWER_T"
+    "YPE_VICE_PRESIDENT\020\001\022\036\n\032GUILD_POWER_TYPE"
+    "_PRESIDENT\020\002*V\n\nETaskState\022\023\n\017TASK_IN_PR"
+    "OCESS\020\000\022\r\n\tTASK_DONE\020\001\022\023\n\017TASK_DRAW_AWAR"
+    "D\020\002\022\017\n\013TASK_FINISH\020\003*\251\002\n\tETaskType\022 \n\034TA"
+    "SK_LEVEL_UPDATE_SOME_LEVEL\020\000\022\024\n\020TASK_PAS"
+    "S_ECTYPE\020\001\022\032\n\026TASK_PASS_ECTYPE_COUNT\020\002\022$"
+    "\n TASK_PASS_SOME_TYPE_ECTYPE_COUNT\020\003\022\033\n\027"
+    "TASK_UPDATE_SKILL_COUNT\020\004\022\026\n\022TASK_CONSUM"
+    "E_MONEY\020\005\022\030\n\024TASK_CONSUME_DIAMOND\020\006\022\024\n\020T"
+    "ASK_ARENA_COUNT\020\007\022\033\n\027TASK_KILL_MONSTER_C"
+    "OUNT\020\010\022 \n\034TASK_KILL_SOME_MONSTER_COUNT\020\t"
+    "*5\n\013EBattleType\022\021\n\rBATTLE_SINGLE\020\000\022\023\n\017BA"
+    "TTLE_PVE_TEAM\020\001", 8095);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "NFDefine.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_NFDefine_2eproto);
@@ -358,6 +447,10 @@ bool EGameMsgID_IsValid(int value) {
     case 260:
     case 261:
     case 262:
+    case 280:
+    case 281:
+    case 282:
+    case 283:
     case 290:
     case 291:
     case 300:
@@ -370,6 +463,59 @@ bool EGameMsgID_IsValid(int value) {
     case 307:
     case 308:
     case 309:
+    case 310:
+    case 311:
+    case 312:
+    case 313:
+    case 314:
+    case 400:
+    case 401:
+    case 402:
+    case 403:
+    case 404:
+    case 405:
+    case 406:
+    case 407:
+    case 408:
+    case 409:
+    case 410:
+    case 411:
+    case 450:
+    case 451:
+    case 500:
+    case 501:
+    case 502:
+    case 503:
+    case 504:
+    case 505:
+    case 506:
+    case 507:
+    case 508:
+    case 509:
+    case 510:
+    case 600:
+    case 700:
+    case 701:
+    case 702:
+    case 800:
+    case 801:
+    case 802:
+    case 803:
+    case 810:
+    case 811:
+    case 812:
+    case 813:
+    case 814:
+    case 820:
+    case 821:
+    case 822:
+    case 823:
+    case 824:
+    case 825:
+    case 826:
+    case 827:
+    case 828:
+    case 829:
     case 1000:
     case 1001:
     case 1002:
@@ -391,14 +537,121 @@ bool EGameMsgID_IsValid(int value) {
   }
 }
 
-const ::google::protobuf::EnumDescriptor* EAwardType_descriptor() {
+const ::google::protobuf::EnumDescriptor* EItemType_descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return EAwardType_descriptor_;
+  return EItemType_descriptor_;
 }
-bool EAwardType_IsValid(int value) {
+bool EItemType_IsValid(int value) {
   switch(value) {
     case 0:
     case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 100:
+    case 101:
+      return true;
+    default:
+      return false;
+  }
+}
+
+const ::google::protobuf::EnumDescriptor* EGameEquipSubType_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return EGameEquipSubType_descriptor_;
+}
+bool EGameEquipSubType_IsValid(int value) {
+  switch(value) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+    case 15:
+      return true;
+    default:
+      return false;
+  }
+}
+
+const ::google::protobuf::EnumDescriptor* EGameElementType_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return EGameElementType_descriptor_;
+}
+bool EGameElementType_IsValid(int value) {
+  switch(value) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+      return true;
+    default:
+      return false;
+  }
+}
+
+const ::google::protobuf::EnumDescriptor* EGameItemSubType_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return EGameItemSubType_descriptor_;
+}
+bool EGameItemSubType_IsValid(int value) {
+  switch(value) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+      return true;
+    default:
+      return false;
+  }
+}
+
+const ::google::protobuf::EnumDescriptor* EGameItemExpiredType_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return EGameItemExpiredType_descriptor_;
+}
+bool EGameItemExpiredType_IsValid(int value) {
+  switch(value) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      return true;
+    default:
+      return false;
+  }
+}
+
+const ::google::protobuf::EnumDescriptor* EDrawDropItemState_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return EDrawDropItemState_descriptor_;
+}
+bool EDrawDropItemState_IsValid(int value) {
+  switch(value) {
+    case 0:
+    case 1:
+    case 2:
       return true;
     default:
       return false;
@@ -452,6 +705,20 @@ bool ETaskType_IsValid(int value) {
     case 7:
     case 8:
     case 9:
+      return true;
+    default:
+      return false;
+  }
+}
+
+const ::google::protobuf::EnumDescriptor* EBattleType_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return EBattleType_descriptor_;
+}
+bool EBattleType_IsValid(int value) {
+  switch(value) {
+    case 0:
+    case 1:
       return true;
     default:
       return false;

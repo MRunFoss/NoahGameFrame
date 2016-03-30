@@ -6,8 +6,8 @@
 //
 // -------------------------------------------------------------------------
 
-#ifndef _NFI_DATALIST_H_
-#define _NFI_DATALIST_H_
+#ifndef NFI_DATALIST_H
+#define NFI_DATALIST_H
 
 #include <string>
 #include <cstring>
@@ -26,28 +26,27 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
-#include "NFCMemory.h"
-#include <boost/lexical_cast.hpp>
-#include <boost/variant.hpp>
-#include "NFComm/NFPluginModule/NFIdentID.h"
+#include "common/variant.hpp"
+#include "NFComm/NFPluginModule/NFGUID.h"
 #include "NFComm/NFPluginModule/NFPlatform.h"
 
-//±‰¡ø¿‡–Õ
+//ÂèòÈáèÁ±ªÂûã
 enum TDATA_TYPE
 {
-    TDATA_UNKNOWN,  // Œ¥÷™
-    TDATA_INT,              // 32Œª’˚ ˝
-    TDATA_FLOAT,            // µ•æ´∂»∏°µ„ ˝
-    TDATA_DOUBLE,       // À´æ´∂»∏°µ„ ˝
-    TDATA_STRING,       // ◊÷∑˚¥Æ
-    TDATA_OBJECT,       // ∂‘œÛID
-    //TDATA_POINTER,      // ÷∏’Î
+    TDATA_UNKNOWN,  // Êú™Áü•
+    TDATA_INT,      // 64‰ΩçÊï¥Êï∞
+    TDATA_FLOAT,    // ÊµÆÁÇπÊï∞(ÂèåÁ≤æÂ∫¶ÔºåÁî®doubleÁ±ªÂûãÂÆûÁé∞)
+    TDATA_STRING,   // Â≠óÁ¨¶‰∏≤
+    TDATA_OBJECT,   // ÂØπË±°ID
     TDATA_MAX,
 };
 
 const static std::string NULL_STR = "";
+const static NFGUID NULL_OBJECT = NFGUID();
+const static double NULL_FLOAT = 0.0;
+const static NFINT64 NULL_INT = 0;
 
-//¿‡–ÕΩ”ø⁄
+//Á±ªÂûãÊé•Âè£
 class NFIDataList
 {
 public:
@@ -59,188 +58,278 @@ public:
             nType = TDATA_UNKNOWN;
         }
 
+        TData(TDATA_TYPE eType)
+        {
+            nType = eType;
+        }
+
+        TData(const TData& value)
+        {
+            nType = value.nType;
+            variantData = value.variantData;
+        }
+
         ~TData()
         {
             nType = TDATA_UNKNOWN;
         }
 
+        inline bool operator==(const TData& src) const
+        {
+            if (src.GetType() == GetType()
+                && src.variantData == variantData)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        void Reset()
+        {
+            nType = TDATA_UNKNOWN;
+        }
+
+        bool IsNullValue() const
+        {
+            bool bChanged = false;
+
+            switch (GetType())
+            {
+                case TDATA_INT:
+                {
+                    if (0 != GetInt())
+                    {
+                        bChanged = true;
+                    }
+                }
+                break;
+                case TDATA_FLOAT:
+                {
+                    double fValue = GetFloat();
+                    if (fValue > 0.001  || fValue < -0.001)
+                    {
+                        bChanged = true;
+                    }
+                }
+                break;
+                case TDATA_STRING:
+                {
+                    const std::string& strData = GetString();
+                    if (!strData.empty())
+                    {
+                        bChanged = true;
+                    }
+                }
+                break;
+                case TDATA_OBJECT:
+                {
+                    if (!GetObject().IsNull())
+                    {
+                        bChanged = true;
+                    }
+                }
+                break;
+                default:
+                    break;
+            }
+
+            return bChanged;
+        }
+
+        TDATA_TYPE GetType() const
+        {
+            return nType;
+        }
+
+        // ËÆæÁΩÆÂÄºÔºåÁ±ªÂûãÂøÖÈ°ªÂíå‰πãÂâç‰∏ÄËá¥
+        void SetInt(const NFINT64 var)
+        {
+            if (nType == TDATA_INT || TDATA_UNKNOWN == nType)
+            {
+                nType = TDATA_INT;
+                variantData = (NFINT64)var;
+            }
+        }
+
+        void SetFloat(const double var)
+        {
+            if (nType == TDATA_FLOAT || TDATA_UNKNOWN == nType)
+            {
+                nType = TDATA_FLOAT;
+                variantData = (double)var;
+            }
+        }
+
+        void SetString(const std::string& var)
+        {
+            if (nType == TDATA_STRING || TDATA_UNKNOWN == nType)
+            {
+                nType = TDATA_STRING;
+                variantData = (std::string)var;
+            }
+        }
+
+        void SetObject(const NFGUID var)
+        {
+            if (nType == TDATA_OBJECT || TDATA_UNKNOWN == nType)
+            {
+                nType = TDATA_OBJECT;
+                variantData = (NFGUID)var;
+            }
+        }
+
+        const NFINT64 GetInt() const
+        {
+            if (TDATA_INT == nType)
+            {
+                //return boost::get<NFINT64>(variantData);
+                return variantData.get<NFINT64>();
+            }
+
+            return NULL_INT;
+        }
+
+        const double GetFloat() const
+        {
+            if (TDATA_FLOAT == nType)
+            {
+                //return boost::get<double>(variantData);
+                return variantData.get<double>();
+            }
+
+            return NULL_FLOAT;
+        }
+        const std::string& GetString() const
+        {
+            if (TDATA_STRING == nType)
+            {
+                //return boost::get<const std::string&>(variantData);
+                return variantData.get<std::string>();
+            }
+
+            return NULL_STR;
+        }
+
+        const NFGUID& GetObject() const
+        {
+            if (TDATA_OBJECT == nType)
+            {
+                //return boost::get<const NFGUID&>(variantData);
+                return variantData.get<NFGUID>();
+            }
+
+            return NULL_OBJECT;
+        }
+
+        std::string StringValEx() const
+        {
+            std::string strData;
+
+            switch (nType)
+            {
+                case TDATA_INT:
+                    strData = lexical_cast<std::string> (GetInt());
+                    break;
+
+                case TDATA_FLOAT:
+                    strData = lexical_cast<std::string> (GetFloat());
+                    break;
+
+                case TDATA_STRING:
+                    strData = GetString();
+                    break;
+
+                case TDATA_OBJECT:
+                    strData = GetObject().ToString();
+                    break;
+
+                default:
+                    strData = NULL_STR;
+                    break;
+            }
+            return strData;
+        }
+
+    private:
+
         TDATA_TYPE nType;
-        boost::variant<NFINT64, float, double, std::string, NFIDENTID, void*> variantData;
+
+    public:
+        //boost::variant<NFINT64, double, std::string, NFGUID> variantData;
+        mapbox::util::variant<NFINT64, double, std::string, NFGUID> variantData;
     };
 
     NFIDataList()
     {
-		mnUseSize = 0;
-		for (int i = 0; i < STACK_SIZE; ++i)
-		{
-			mvList.push_back(NF_SHARE_PTR<TData>(NF_NEW TData()));
-		}
+        mnUseSize = 0;
+        mvList.reserve(STACK_SIZE);
+        for (int i = 0; i < STACK_SIZE; ++i)
+        {
+            mvList.push_back(NF_SHARE_PTR<TData>(NF_NEW TData()));
+        }
     }
 
     virtual ~NFIDataList() = 0;
 
-    virtual std::string StringValEx(const int index, const bool bForce) const = 0;
+    virtual std::string StringValEx(const int index) const = 0;
     virtual bool ToString(std::string& str, const char* strSplit) const = 0;
 
- protected:
-    template<typename T>
-    T NumberVal(const int index) const
-    {
-        T result = 0;
-        if (index < GetCount() && index >= 0)
-        {
-            TDATA_TYPE type =  Type(index);
-            if (type == TDATA_DOUBLE
-                || type == TDATA_FLOAT
-                || type == TDATA_INT
-                || type == TDATA_OBJECT)
-            {
-                const NF_SHARE_PTR<TData> var = GetStack(index);
-                result = boost::get<T>(var->variantData);
-            }
-        }
-
-        return result;
-    }
-
-    template<typename T>
-    bool SetValue(const int index, const T& value)
-    {
-        if (index < GetCount() && index >= 0)
-        {
-            TDATA_TYPE type =  Type(index);
-            if (type == TDATA_DOUBLE
-                || type == TDATA_FLOAT
-                || type == TDATA_INT
-                || type == TDATA_OBJECT
-				|| type == TDATA_STRING)
-            {
-                NF_SHARE_PTR<TData> var = GetStack(index);
-                var->variantData = value;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    template<typename T>
-    bool AddValue(const TDATA_TYPE type, const T& value)
-    {
-		if (GetCount() == mvList.size())
-		{
-			AddStatck();
-		}
-
-        if (type == TDATA_DOUBLE
-            || type == TDATA_FLOAT
-            || type == TDATA_INT
-            || type == TDATA_OBJECT
-            || type == TDATA_STRING)
-        {
-            NF_SHARE_PTR<TData> var = GetStack(GetCount());
-            if (var)
-            {
-                var->nType = type;
-                var->variantData = value;
-				mnUseSize++;
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-	void AddStatck()
-	{
-		for (int i = 0; i < STACK_SIZE; ++i )
-		{
-			NF_SHARE_PTR<TData> pData(NF_NEW TData());
-			mvList.push_back(pData);
-		}
-	}
-
 public:
-	const NF_SHARE_PTR<TData> GetStack(const int index) const
-	{
-		if (index < mvList.size())
-		{
-			return mvList[index];
-		}
 
-		return NF_SHARE_PTR<TData>();
-	}
-    // ∫œ≤¢
+    virtual const NF_SHARE_PTR<TData> GetStack(const int index) const = 0;
+
+    // ÂêàÂπ∂
     virtual bool Concat(const NFIDataList& src) = 0;
-    // ≤ø∑÷ÃÌº”
-	virtual bool Append(const NFIDataList& src) = 0;
+    // ÈÉ®ÂàÜÊ∑ªÂä†
+    virtual bool Append(const NFIDataList& src) = 0;
     virtual bool Append(const NFIDataList& src, const int start, const int count) = 0;
-    // ≤ø∑÷ÃÌº”
+    // ÈÉ®ÂàÜÊ∑ªÂä†
     virtual bool Append(const NFIDataList::TData& sTData) = 0;
-    // «Âø’
+    // Ê∏ÖÁ©∫
     virtual void Clear() = 0;
-    //  «∑ÒŒ™ø’
+    // ÊòØÂê¶‰∏∫Á©∫
     virtual bool IsEmpty() const = 0;
-    //  ˝æ› ˝¡ø
+    // Êï∞ÊçÆÊï∞Èáè
     virtual int GetCount() const = 0;
-    //  ˝æ›¿‡–Õ
+    // Êï∞ÊçÆÁ±ªÂûã
     virtual TDATA_TYPE Type(const int index) const = 0;
-    // ˝æ›¿‡–ÕºÏ≤‚
+    //Êï∞ÊçÆÁ±ªÂûãÊ£ÄÊµã
     virtual bool TypeEx(const  int nType, ...) const = 0;
-    //–¬Ω¯»Î≤∑÷
+    //Êñ∞ËøõÂÖ•ÊãÜÂàÜ
     virtual bool Split(const char* str, const char* strSplit) = 0;
 
-    // ÃÌº” ˝æ›
+    // Ê∑ªÂä†Êï∞ÊçÆ
     virtual bool Add(const NFINT64 value) = 0;
-    virtual bool Add(const float value) = 0;
     virtual bool Add(const double value) = 0;
     virtual bool Add(const char* value) = 0;
-
     virtual bool Add(const std::string& value) = 0;
-    virtual bool Add(const NFIDENTID& value) = 0;
-    virtual bool Add(const void* value) = 0;
+    virtual bool Add(const NFGUID& value) = 0;
 
     virtual bool Set(const int index, const NFINT64 value) = 0;
-    virtual bool Set(const int index, const float value) = 0;
     virtual bool Set(const int index, const double value) = 0;
     virtual bool Set(const int index, const char* value) = 0;
-    virtual bool Set(const int index, const NFIDENTID& value) = 0;
-    virtual bool Set(const int index, const void* value) = 0;
+    virtual bool Set(const int index, const NFGUID& value) = 0;
 
-    // ªÒµ√ ˝æ›
+    // Ëé∑ÂæóÊï∞ÊçÆ
     virtual NFINT64 Int(const int index) const = 0;
-    virtual float Float(const int index) const = 0;
-    virtual double Double(const int index) const = 0;
+    virtual double Float(const int index) const = 0;
     virtual const std::string& String(const int index) const = 0;
-    virtual NFIDENTID Object(const int index) const = 0;
-    virtual void* Pointer(const int index) const = 0;
+    virtual const NFGUID& Object(const int index) const = 0;
 
     bool AddInt(const NFINT64 value)
     {
         return Add(value);
     }
-    bool AddFloat(const float value)
+    bool AddFloat(const double value)
     {
         return Add(value);
     }
-    bool AddDouble(const double value)
-    {
-        return Add(value);
-    }
-    //bool AddString(const char* value)
-    //{
-    //    return Add(value);
-    //}
     bool AddString(const std::string& value)
     {
         return Add(value);
     }
-    bool AddObject(const NFIDENTID& value)
-    {
-        return Add(value);
-    }
-    bool AddPoint(const void* value)
+    bool AddObject(const NFGUID& value)
     {
         return Add(value);
     }
@@ -249,11 +338,7 @@ public:
     {
         return Set(index, value);
     }
-    bool SetFloat(const int index, const float value)
-    {
-        return Set(index, value);
-    }
-    bool SetDouble(const int index, const double value)
+    bool SetFloat(const int index, const double value)
     {
         return Set(index, value);
     }
@@ -261,78 +346,12 @@ public:
     {
         return Set(index, value);
     }
-    bool SetObject(const int index, const NFIDENTID& value)
-    {
-        return Set(index, value);
-    }
-    bool SetPoint(const int index, const void* value)
+    bool SetObject(const int index, const NFGUID& value)
     {
         return Set(index, value);
     }
 
-    static bool Valid(const NFIDataList::TData& var)
-    {
-        bool bChanged = false;
 
-        switch (var.nType)
-        {
-            case TDATA_INT:
-            {
-                if (0 != boost::get<NFINT64>(var.variantData))
-                {
-                    bChanged = true;
-                }
-            }
-            break;
-            case TDATA_FLOAT:
-            {
-                float fValue = boost::get<float>(var.variantData);
-                if (fValue > 0.001f  || fValue < -0.001f)
-                {
-                    bChanged = true;
-                }
-            }
-            break;
-            case TDATA_DOUBLE:
-            {
-                double fValue = boost::get<double>(var.variantData);
-                if (fValue > 0.001f  || fValue < -0.001f)
-                {
-                    bChanged = true;
-                }
-            }
-            break;
-            case TDATA_STRING:
-            {
-                const std::string& strData = boost::get<const std::string&>(var.variantData);
-                if (!strData.empty())
-                {
-                    bChanged = true;
-                }
-            }
-            break;
-            case TDATA_OBJECT:
-            {
-                if (NFIDENTID() != boost::get<NFIDENTID>(var.variantData))
-                {
-                    bChanged = true;
-                }
-            }
-            break;
-            //case TDATA_POINTER:
-            //    {
-            //        if (0 != boost::get<void*>(var.variantData))
-            //        {
-            //            bChanged = true;
-            //        }
-            //    }
-            //    break;
-            default:
-                break;
-        }
-
-        return bChanged;
-    }
 
     inline bool Compare(const int nPos, const NFIDataList& src) const
     {
@@ -350,10 +369,6 @@ public:
                     return fabs(Float(nPos) - src.Float(nPos)) < 0.001f;
                     break;
 
-                case TDATA_DOUBLE:
-                    return fabs(Double(nPos) - src.Double(nPos)) < 0.001f;
-                    break;
-
                 case TDATA_STRING:
                     return String(nPos) == src.String(nPos);
                     break;
@@ -361,10 +376,6 @@ public:
                 case TDATA_OBJECT:
                     return Object(nPos) == src.Object(nPos);
                     break;
-
-                    //case TDATA_POINTER:
-                    //    return Pointer(nPos) == src.Pointer(nPos);
-                    //    break;
 
                 default:
                     return false;
@@ -374,15 +385,8 @@ public:
 
         return false;
     }
-/*
-	NFIDataList& NFIDataList::operator = (const NFIDataList& src)
-	{
-		Clear();
-		Append(src, 0, src.GetCount());
 
-		return *this;
-	}
-*/
+
     inline bool operator==(const NFIDataList& src) const
     {
         if (src.GetCount() == GetCount())
@@ -405,11 +409,6 @@ public:
     {
         return !(*this == src);
     }
-    inline NFIDataList& operator<<(const float value)
-    {
-        Add(value);
-        return *this;
-    }
     inline NFIDataList& operator<<(const double value)
     {
         Add(value);
@@ -431,27 +430,16 @@ public:
         Add(value);
         return *this;
     }
-//    inline NFIDataList& operator<<(const int64_t& value)
-//    {
-//        Add(NFINT64(value));
-//        return *this;
-//    }
-	inline NFIDataList& operator<<(const int value)
-	{
-		Add((NFINT64)value);
-		return *this;
-	}
-    inline NFIDataList& operator<<(const NFIDENTID& value)
+    inline NFIDataList& operator<<(const int value)
+    {
+        Add((NFINT64)value);
+        return *this;
+    }
+    inline NFIDataList& operator<<(const NFGUID& value)
     {
         Add(value);
         return *this;
     }
-    inline NFIDataList& operator<<(const void* value)
-    {
-        Add(value);
-        return *this;
-    }
-
     inline NFIDataList& operator<<(const NFIDataList& value)
     {
         Concat(value);
@@ -459,10 +447,13 @@ public:
     }
     enum { STACK_SIZE = 8 };
 protected:
-	int mnUseSize;
+    int mnUseSize;
     std::vector< NF_SHARE_PTR<TData> > mvList;
+    std::map<std::string, NF_SHARE_PTR<TData> > mxMap;
 };
 
 inline NFIDataList::~NFIDataList() {}
+
+const static NFIDataList::TData NULL_TDATA = NFIDataList::TData();
 
 #endif

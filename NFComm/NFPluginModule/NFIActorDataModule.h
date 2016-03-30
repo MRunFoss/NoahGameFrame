@@ -6,8 +6,8 @@
 //
 // -------------------------------------------------------------------------
 
-#ifndef _NFI_ACTOR_DATA_MODULE_H_
-#define _NFI_ACTOR_DATA_MODULE_H_
+#ifndef _NFI_ACTOR_DATA_MODULE_H
+#define _NFI_ACTOR_DATA_MODULE_H
 
 #include <iostream>
 #include "NFILogicModule.h"
@@ -18,7 +18,7 @@ class NFIActorDataModule
 {
 
 public:
-	
+
 #ifdef NF_USE_ACTOR
     //virtual void Handler(const NFIActorMessage& message, const Theron::Address from) = 0;
 #endif

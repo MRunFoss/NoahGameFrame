@@ -6,8 +6,8 @@
 //
 // -------------------------------------------------------------------------
 
-#ifndef _NFC_PROPERTY_CONFIG_MODULE_H_
-#define _NFC_PROPERTY_CONFIG_MODULE_H_
+#ifndef NFC_PROPERTY_CONFIG_MODULE_H
+#define NFC_PROPERTY_CONFIG_MODULE_H
 
 #include "NFComm/Config/NFConfig.h"
 #include "NFComm/RapidXML/rapidxml.hpp"
@@ -17,12 +17,13 @@
 #include "NFComm/NFPluginModule/NFIPropertyConfigModule.h"
 #include "NFComm/NFPluginModule/NFILogicClassModule.h"
 #include "NFComm/NFPluginModule/NFIElementInfoModule.h"
+#include "NFComm/NFMessageDefine/NFProtocolDefine.hpp"
 
 class NFCPropertyConfigModule
     : public NFIPropertyConfigModule
 {
 public:
-    NFCPropertyConfigModule( NFIPluginManager* p )
+    NFCPropertyConfigModule(NFIPluginManager* p)
     {
         pPluginManager = p;
     }
@@ -30,17 +31,18 @@ public:
 
     virtual bool Init();
     virtual bool Shut();
-    virtual bool Execute( const float fLasFrametime, const float fStartedTime );
+    virtual bool Execute();
     virtual bool AfterInit();
 
-    virtual int CalculateBaseValue( const NFJobType nJob, const int nLevel, const std::string& strProperty );
-    virtual bool LegalLevel( const NFJobType nJob, const int nLevel );
+    virtual int CalculateBaseValue(const NFJobType nJob, const int nLevel, const std::string& strProperty);
+    virtual bool LegalLevel(const NFJobType nJob, const int nLevel);
 
 protected:
     void Load();
+
 private:
-    //µÈ¼¶->EffectData
-    NFMapEx<int, std::string> mhtCoefficienData[( int )NFJobType::NJT_MAX];
+    //Level->EffectData
+    NFMapEx<int, std::string> mhtCoefficienData[(int)NFJobType::NJT_MAX];
 
     NFILogicClassModule* m_pLogicClassModule;
     NFIElementInfoModule* m_pElementInfoModule;

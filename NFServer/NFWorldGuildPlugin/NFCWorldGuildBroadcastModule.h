@@ -6,13 +6,12 @@
 //
 // -------------------------------------------------------------------------
 
-#ifndef _NFC_WORLD_GUILD_BROADCAST_MODULE_H_
-#define _NFC_WORLD_GUILD_BROADCAST_MODULE_H_
+#ifndef NFC_WORLD_GUILD_BROADCAST_MODULE_H
+#define NFC_WORLD_GUILD_BROADCAST_MODULE_H
 
 #include "NFComm/NFCore/NFMap.h"
 #include "NFComm/NFPluginModule/NFIKernelModule.h"
 #include "NFComm/NFPluginModule/NFIWorldGuildModule.h"
-#include "NFComm/NFPluginModule/NFIEventProcessModule.h"
 #include "NFComm/NFPluginModule/NFIWorldGuildDataModule.h"
 #include "NFComm/NFPluginModule/NFIWorldGuildBroadcastModule.h"
 #include "NFComm/NFPluginModule/NFIWorldNet_ServerModule.h"
@@ -28,16 +27,15 @@ public:
 
     virtual bool Init();
     virtual bool Shut();
-    virtual bool Execute(const float fLasFrametime, const float fStartedTime);
+    virtual bool Execute();
     virtual bool AfterInit();
 
 protected:
     //¹«»á
-    int OnPropertyCommonEvent( const NFIDENTID& self, const std::string& strPropertyName, const NFIDataList& oldVar, const NFIDataList& newVar);
-    int OnRecordCommonEvent( const NFIDENTID& self, const RECORD_EVENT_DATA& xEventData, const NFIDataList& oldVar, const NFIDataList& newVar );
+    int OnPropertyCommonEvent(const NFGUID& self, const std::string& strPropertyName, const NFIDataList::TData& oldVar, const NFIDataList::TData& newVar);
+    int OnRecordCommonEvent(const NFGUID& self, const RECORD_EVENT_DATA& xEventData, const NFIDataList::TData& oldVar, const NFIDataList::TData& newVar);
 
 protected:
-    NFIEventProcessModule* m_pEventProcessModule;
     NFIKernelModule* m_pKernelModule;
     NFIWorldGuildDataModule* m_pWorldGuildDataModule;
     NFIWorldNet_ServerModule* m_pWorldNet_ServerModule;
